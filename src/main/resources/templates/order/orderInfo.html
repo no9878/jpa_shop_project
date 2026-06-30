@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"/>
+<body>
+<div class="container">
+    <div th:replace="~{fragments/bodyHeader :: bodyHeader}"/>
+<div>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>회원명</th>
+                <th>상품 이름</th>
+                <th style="min-width: 100px;">상품 주문가격</th>
+                <th style="min-width: 100px;">상품 주문수량</th>
+                <th>상태</th>
+                <th>일시</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${orderItems}">
+                <td th:text="${order.id}"></td>
+                <td th:text="${order.member.name}"></td>
+                <td th:text="${item.item.name}"></td>
+                <td th:text="${item.orderPrice}"></td>
+                <td th:text="${item.count}"></td>
+                <td th:text="${order.status}"></td>
+                <td th:text="${order.orderDate}"></td>
+
+
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:replace="~{fragments/footer :: footer}"/>
+</div> <!-- /container -->
+</body>
+</html>
