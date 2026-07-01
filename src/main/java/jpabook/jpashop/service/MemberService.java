@@ -17,6 +17,20 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
 
+    public Member login(String loginId,String password){
+
+        Member findMember = memberRepository.findFirstByName(loginId);
+
+        if (findMember==null)
+            return null;
+
+        if(findMember.getPassword().equals(password))
+            return findMember;
+
+        return null;
+
+    }
+
     /**
      * 회원 가입
      */

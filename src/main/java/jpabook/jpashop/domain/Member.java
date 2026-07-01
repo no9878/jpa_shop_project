@@ -18,12 +18,17 @@ public class Member {
 
 
     private String name;
+    private String password;
 
     @Embedded
     private Address address;
 
     @OneToMany(mappedBy = "member")
     private List<Order> orders = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
 
 
 }

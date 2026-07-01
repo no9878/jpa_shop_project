@@ -1,13 +1,18 @@
 package jpabook.jpashop.api;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jpabook.jpashop.domain.Address;
 import jpabook.jpashop.domain.Member;
+import jpabook.jpashop.domain.Role;
 import jpabook.jpashop.service.MemberService;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.service.annotation.GetExchange;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -105,16 +110,56 @@ public class MemberApiController {
     /**
      * 조회 V2: 응답 값으로 엔티티가 아닌 별도의 DTO를 반환한다.
      */
-    @GetMapping("api/v2/members")
-    public Result membersV2(){
-        List<Member> findMembers = memberService.findMembers();
-        //엔티티 -> DTO 변환
-        List<MemberDto> collect = findMembers.stream()
-                .map(m-> new MemberDto(m.getName()))
-                .collect(Collectors.toList());
-        return new Result(collect);
+    @GetMapping("/api/v2/members")
+    public ResponseEntity<?> membersV2(@SessionAttribute(name = "loginMember",required = false)Member loginMember){
+
+        ResponseEntity<?> response = adminCheck(loginMember);
+
+        if (response.getStatusCode()!=HttpStatus.OK){
+            return response;
+        }
+
+
+            List<Member> findMembers = memberService.findMembers();
+
+            //엔티티 -> DTO 변환
+            List<MemberDto> collect = findMembers.stream()
+                    .map(m -> new MemberDto(m.getName()))
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(new Result(collect));
 
     }
+
+
+    /**
+     * 관리자 로그인 기능 추가
+     */
+    @PostMapping("/api/login")
+    public ResponseEntity<String> login(@RequestBody @Valid LoginRequestDto loginRequestDto, HttpServletRequest request){
+        Member loginMember = memberService.login(loginRequestDto.getLoginId(),loginRequestDto.getPassword());
+
+        if (loginMember==(null)){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("아이디가 존재하지 않거나 비밀번호가 틀렸습니다.");
+        }
+
+        HttpSession session = request.getSession();
+        session.setAttribute("loginMember",loginMember);
+        return ResponseEntity.ok("로그인 성공");
+    }
+
+    private ResponseEntity<String> adminCheck(@SessionAttribute(name = "loginMember",required = false) Member loginMember){
+
+        if (loginMember==null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("로그인이 필요합니다.");
+        }
+
+    if (loginMember.getRole()!=Role.ADMIN){
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("관리자 권한이 필요합니다.");
+    }
+    return ResponseEntity.ok().build();
+
+    }
+
     @Data
     @AllArgsConstructor
     static class Result<T> {
@@ -125,5 +170,13 @@ public class MemberApiController {
     @AllArgsConstructor
     static class MemberDto{
         private String name;
+    }
+
+
+
+    @Getter @Setter
+    static class LoginRequestDto{
+        private String loginId;
+        private String password;
     }
 }
