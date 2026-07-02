@@ -1,3 +1,19 @@
+구현 기능
+
+http://localhost:8080
+
+GET
+
+/api/members: 멤버관련 정보 조회
+
+
+POST
+
+/api/login: 멤버 로그인(파라미터: loginId,password)
+
+
+
+
 2026/7/1 첫 업로드
 
 2026/7/2 로그인 기능 추가+관리자 권한 체크로직 추가
