@@ -17,9 +17,10 @@ POST
 
 PUT
 
-/api/update/{id}: 멤버 이름 수정 (파라미터: name) 
+/api/update/{id}: 멤버 이름 수정 (파라미터: name)  //관리자 권한
 
-
+DELETE
+/api/delete/{id}: 멤버 삭제 //관리자 권한
 
 
 
