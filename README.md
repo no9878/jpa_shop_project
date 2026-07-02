@@ -2,6 +2,7 @@
 
 http://localhost:8080
 
+
 GET
 
 /api/members: 멤버관련 정보 조회  //관리자 권한
@@ -9,12 +10,17 @@ GET
 
 POST
 
-/api/join: 멤버 등록 (파라미터: name,password)          //중복체크 기능 
+/api/join: 멤버 등록 (파라미터: name,password)     //중복체크 기능 
+
 /api/login: 멤버 로그인(파라미터: loginId,password)     
+
 
 PUT
 
 /api/update/{id}: 멤버 이름 수정 (파라미터: name) 
+
+
+
 
 
 2026/7/1 첫 업로드
