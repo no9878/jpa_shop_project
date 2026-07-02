@@ -105,7 +105,7 @@ public class MemberApiController {
     }
 
 
-
+.
 
     /**
      * 관리자 권한 체크
