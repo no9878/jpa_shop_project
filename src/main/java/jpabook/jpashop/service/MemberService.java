@@ -62,7 +62,8 @@ public class MemberService {
     }
 
     public Member findOne(Long memberId){
-        return memberRepository.findById(memberId).get();
+        return memberRepository.findById(memberId).
+                orElseThrow(()->new CustomStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 회원입니다."));
     }
 
     /**
@@ -70,9 +71,19 @@ public class MemberService {
      */
     @Transactional
     public void update(Long id,String name){
-        Member member = memberRepository.findById(id).get();
+        Member member = memberRepository.findById(id).
+                orElseThrow(()->new CustomStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 회원입니다."));
+
+        if(memberRepository.findFirstByName(name)!=null)
+         throw new CustomStatusException(HttpStatus.CONFLICT,"이미 존재하는 회원입니다.");
+
         member.setName(name);
 
+    }
+
+    @Transactional
+    public void delete(Long id){
+        memberRepository.deleteById(id);
     }
 
     public Page<MembersDto> findMemberDto(Pageable pageable){

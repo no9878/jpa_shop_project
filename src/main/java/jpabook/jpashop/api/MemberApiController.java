@@ -13,12 +13,9 @@ import lombok.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,70 +25,74 @@ public class MemberApiController {
 
 
     /**
-     * 등록 V2: 요청 값으로 Member 엔티티 대신에 별도의 DTO를 받는다.
+     * 멤버등록
+     * 파라미터: name,password
      */
-    @PostMapping("/api/members")
-    public CreateMemberResponse saveMemberV2(@RequestBody @Valid CreateMemberRequest request){
+    @PostMapping("/api/join")
+    public ApiResponse<JoinMemberResponse> saveMemberV2(@RequestBody @Valid CreateMemberRequest request){
         Member member = new Member();
         member.setName(request.getName());
         member.setPassword(request.getPassword());
         Long id = memberService.join(member);
-        return new CreateMemberResponse(id);
+        Member newMember = memberService.findOne(id);
+        return new ApiResponse<>("success","멤버 등록 성공.",new JoinMemberResponse(id,(newMember.getName())));
     }
+
 
     /**
-     * 수정 API
+     * 멤버 이름 수정
+     * 파라미터: name
      */
-    @PutMapping("/api/members/{id}")
-    public UpdateMemberResponse updateMemberV2(@PathVariable("id") Long id,
-                                               @RequestBody @Valid UpdateMemberRequest request){
+    @PutMapping("/api/update/{id}")
+    public ApiResponse<UpdateMemberResponse> updateMemberV2(@PathVariable("id") Long id,
+                                               @RequestBody @Valid UpdateMemberRequest request,
+                                               @SessionAttribute(name = "loginMember",required = false)Member loginMember){
+
+        adminCheck(loginMember);
         memberService.update(id, request.getName());
         Member findMember=  memberService.findOne(id);
-        return new UpdateMemberResponse(findMember.getId(),findMember.getName());
-    }
-
-    @Data
-    static class UpdateMemberRequest{
-        private String name;
-    }
-    @Data
-    @AllArgsConstructor
-    static class UpdateMemberResponse{
-        private Long id;
-        private String name;
-    }
-
-    @Data
-    static class CreateMemberRequest{
-        private String name;
-        private String password;
-    }
-
-    @Data
-    static class CreateMemberResponse{
-        private Long id;
-
-        public CreateMemberResponse(Long id) {
-            this.id = id;
-        }
+        return new ApiResponse<>("success","멤버 수정 성공.",new UpdateMemberResponse(findMember.getId(),findMember.getName()));
     }
 
 
+    /**
+     * 멤버관련 정보 조회(관리자)
+     */
     @GetMapping("/api/members")
-    public ApiResponse<?> membersV2(@SessionAttribute(name = "loginMember",required = false)Member loginMember, Pageable pageable){
+    public ApiResponse<Page<MembersDto>> membersV2(@SessionAttribute(name = "loginMember",required = false)Member loginMember, Pageable pageable){
 
         adminCheck(loginMember);
         Page<MembersDto> memberDto = memberService.findMemberDto(pageable);
-        return new ApiResponse<>(memberDto);
+        return new ApiResponse<>("success","멤버 조회 성공.",memberDto);
 
     }
 
+    /**
+     * 멤버삭제
+     */
+    @DeleteMapping("/api/delete/{id}")
+    public ApiResponse<DeleteMemberResponse> deleteMember(@PathVariable("id") Long id,@SessionAttribute(name = "loginMember",required = false)Member loginMember) {
+        adminCheck(loginMember);
+        Member findMember = memberService.findOne(id);
+        DeleteMemberResponse deleteMemberResponse = new DeleteMemberResponse(findMember.getId(), findMember.getName());
+        memberService.delete(id);
+        return new ApiResponse<>("success","멤버 삭제 완료.",deleteMemberResponse);
+    }
+
+
+    @Data
+    @AllArgsConstructor
+    public static class DeleteMemberResponse{
+        private Long id;
+        private String name;
+    }
 
     /**
-     * 관리자 로그인 기능 추가
+     * 로그인
+     * 파라미터: loginId,password
      */
     @PostMapping("/api/login")
-    public Map<String, String> login(@RequestBody @Valid LoginRequestDto loginRequestDto, HttpServletRequest request){
+    public ApiResponse<Map<String,String>> login(@RequestBody @Valid LoginRequestDto loginRequestDto, HttpServletRequest request){
         Member loginMember = memberService.login(loginRequestDto.getLoginId(),loginRequestDto.getPassword());
 
         if (loginMember==(null)){
@@ -100,24 +101,54 @@ public class MemberApiController {
 
         HttpSession session = request.getSession();
         session.setAttribute("loginMember",loginMember);
-        return Map.of("message","로그인 성공");
+        return new ApiResponse<>("success","로그인 성공.",Map.of("message","로그인 성공."));
     }
 
+
+
+
+    /**
+     * 관리자 권한 체크
+     */
     private void adminCheck(@SessionAttribute(name = "loginMember",required = false) Member loginMember){
 
         if (loginMember==null){
             throw new CustomStatusException(HttpStatus.FORBIDDEN,"로그인이 필요합니다.");
         }
 
-    if (loginMember.getRole()!=Role.ADMIN){
+        if (loginMember.getRole()!=Role.ADMIN){
         throw new CustomStatusException(HttpStatus.FORBIDDEN,"관리자 권한이 필요합니다.");
+        }
     }
 
+
+    @Data
+    public static class CreateMemberRequest{
+        private String name;
+        private String password;
     }
 
+    @Getter
+    @AllArgsConstructor
+    public static class JoinMemberResponse {
+        private Long id;
+        private String name;
+    }
+
+
+    @Data
+    public static class UpdateMemberRequest{
+        private String name;
+    }
+    @Data
+    @AllArgsConstructor
+    public static class UpdateMemberResponse{
+        private Long id;
+        private String name;
+    }
 
     @Getter @Setter
-    static class LoginRequestDto{
+    public static class LoginRequestDto{
         private String loginId;
         private String password;
     }
