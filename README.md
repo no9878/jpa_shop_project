@@ -15,10 +15,15 @@ POST
 /api/login: 멤버 로그인(파라미터: loginId,password)     
 
 /api/item/new: 상품 생성   
+
      (공통 파라미터: category(1:Book,2:Album,3:Movie),name,price,stockQuantity
+     
      항목별 파라미터:
+     
      Book: author,isbn
+     
      Album: artist,etc
+     
      Movie: director,actor)      //관리자 권한 
 
 
