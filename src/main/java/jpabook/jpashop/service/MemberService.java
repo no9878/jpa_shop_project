@@ -3,6 +3,7 @@ package jpabook.jpashop.service;
 import jpabook.jpashop.Dto.MembersDto;
 import jpabook.jpashop.domain.Member;
 import jpabook.jpashop.exception.CustomStatusException;
+import jpabook.jpashop.filter.CheckLogic;
 import jpabook.jpashop.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import java.util.List;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final CheckLogic checkLogic;
 
 
     public Member login(String loginId,String password){
@@ -41,18 +43,12 @@ public class MemberService {
     @Transactional
     public Long join(Member member){
 
-        validateDuplicateMember(member); //중복 회원 검증
+        checkLogic.validateDuplicateMember(member); //중복 회원 검증
         memberRepository.save(member);
         return member.getId();
     }
 
-    private void validateDuplicateMember(Member member){
-        List<Member> findMembers =
-                memberRepository.findByName(member.getName());
-        if(!findMembers.isEmpty()){
-            throw new CustomStatusException(HttpStatus.CONFLICT,"이미 존재하는 회원입니다.");
-        }
-    }
+
 
     /**
      * 전체 회원 조회

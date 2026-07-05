@@ -2,10 +2,12 @@ package jpabook.jpashop.service;
 
 import jpabook.jpashop.domain.*;
 import jpabook.jpashop.domain.item.Item;
+import jpabook.jpashop.exception.CustomStatusException;
 import jpabook.jpashop.repository.ItemRepository;
 import jpabook.jpashop.repository.MemberRepository;
 import jpabook.jpashop.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,8 +27,8 @@ public class OrderService {
     public Long order(Long memberId, Long itemId, int count){
 
         //엔티티 조회
-        Member member = memberRepository.findById(memberId).get();
-        Item item = itemRepository.findOne(itemId);
+        Member member = memberRepository.findById(memberId).orElseThrow(()->new CustomStatusException(HttpStatus.NOT_FOUND,"해당 멤버가 존재하지 않습니다."));
+        Item item = itemRepository.findById(itemId).orElseThrow(()->new CustomStatusException(HttpStatus.NOT_FOUND,"해당 상품이 존재하지 않습니다."));
 
         //배송정보 생성
         Delivery delivery = new Delivery();

@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+import static jpabook.jpashop.filter.CheckLogic.adminCheck;
+
 @RestController
 @RequiredArgsConstructor
 public class MemberApiController {
@@ -107,19 +109,6 @@ public class MemberApiController {
 
 
 
-    /**
-     * 관리자 권한 체크
-     */
-    private void adminCheck(@SessionAttribute(name = "loginMember",required = false) Member loginMember){
-
-        if (loginMember==null){
-            throw new CustomStatusException(HttpStatus.FORBIDDEN,"로그인이 필요합니다.");
-        }
-
-        if (loginMember.getRole()!=Role.ADMIN){
-        throw new CustomStatusException(HttpStatus.FORBIDDEN,"관리자 권한이 필요합니다.");
-        }
-    }
 
 
     @Data
