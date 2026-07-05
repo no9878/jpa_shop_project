@@ -69,14 +69,16 @@ public class ItemApiController {
 
     @Data
     public static class CreateItemRequest{
-        @NotNull
-        private int category;
+        @NotNull(message = "카테고리는 필수 입력 항목입니다.")
+        private Integer category;
         @NotBlank(message = "이름은 필수 입력 항목입니다.")
         private String name;
+        @NotNull(message = "가격은 필수 입력 항목입니다.")
         @Min(value = 0,message = "0 이상의 수를 입력해 주세요.")
-        private int price;
+        private Integer price;
+        @NotNull(message = "수량은 필수 입력 항목입니다.")
         @Min(value = 0,message = "0 이상의 수를 입력해 주세요.")
-        private int stockQuantity;
+        private Integer stockQuantity;
 
         private String author;
         private String isbn;
@@ -87,17 +89,17 @@ public class ItemApiController {
 
         @AssertTrue(message = "author,isbn은 필수 입력 항목입니다.")
         public boolean isBookFieldsValid(){
-            if (category!=1) return true;
+            if (category==null||category!=1) return true;
             return hasText(author)&&hasText(isbn);
         }
         @AssertTrue(message = "artist,etc는 필수 입력 항목입니다.")
         public boolean isAlbumFieldsValid(){
-            if (category!=2) return true;
+            if (category==null||category!=2) return true;
             return hasText(artist)&&hasText(etc);
         }
         @AssertTrue(message = "director,actor는 필수 입력 항목입니다.")
         public boolean isMovieFieldsValid(){
-            if (category!=3) return true;
+            if (category==null||category!=3) return true;
             return hasText(director)&&hasText(actor);
         }
 

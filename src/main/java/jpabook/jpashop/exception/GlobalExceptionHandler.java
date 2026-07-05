@@ -14,6 +14,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<String>> handleCustomStatusException(CustomStatusException e){
         return ResponseEntity.status(e.getStatus()).body(new ApiResponse<>("fail",e.getMessage()));
     }
+
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<String>> handleValidException(MethodArgumentNotValidException e){
         return ResponseEntity.status(e.getStatusCode()).body(new ApiResponse<>("fail",e.getBindingResult()

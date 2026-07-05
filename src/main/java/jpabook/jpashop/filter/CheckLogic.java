@@ -55,6 +55,9 @@ public class CheckLogic {
         }
     }
 
+    /**
+     * 상품 중복체크
+     */
     public void validateDuplicateItem(CreateItemRequest request){
         if (request.getCategory()==1) {
             if (bookExistCheck(request) == 1) {
