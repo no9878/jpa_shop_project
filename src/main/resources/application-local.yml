@@ -1,0 +1,4 @@
+dev:
+  auth:
+    admin-id: "ADMIN"
+    admin-pw: "1234"

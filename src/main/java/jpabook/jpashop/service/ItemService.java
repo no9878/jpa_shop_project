@@ -1,5 +1,7 @@
 package jpabook.jpashop.service;
 
+import jpabook.jpashop.api.OrderApiController;
+import jpabook.jpashop.domain.OrderItem;
 import jpabook.jpashop.domain.item.Item;
 import jpabook.jpashop.exception.CustomStatusException;
 import jpabook.jpashop.repository.ItemRepository;
@@ -39,5 +41,14 @@ public class ItemService {
     }
     public Item findOne(Long itemId){
         return itemRepository.findById(itemId).orElseThrow(()-> new CustomStatusException(HttpStatus.NOT_FOUND,"해당 상품이 존재하지 않습니다."));
+    }
+    public Item findOrderItem(String name, String categoryName){
+        return itemRepository.findOrderitem(name,categoryName);
+    }
+
+    @Transactional
+    public OrderItem createOrderItem(OrderApiController.NewOrderRequest.OrderItems orderItems){
+        Item item = findOrderItem(orderItems.getItemName(), orderItems.getCategoryName());
+      return OrderItem.createOrderItem(item,item.getPrice(), orderItems.getQuantity());
     }
 }

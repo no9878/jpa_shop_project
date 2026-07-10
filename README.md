@@ -7,6 +7,9 @@ GET
 
 /api/members: 멤버관련 정보 조회  //관리자 권한
 
+/api/items: 모든 상품 정보 조회 //관리자 권한
+
+/api/orders: 모든 주문 정보 조회
 
 POST
 
@@ -14,7 +17,7 @@ POST
 
 /api/login: 멤버 로그인(파라미터: loginId,password)     
 
-/api/item/new: 상품 생성   
+/api/item/new: 상품 생성 //관리자 권한  
 
      (공통 파라미터: category(1:Book,2:Album,3:Movie),name,price,stockQuantity
      
@@ -26,6 +29,7 @@ POST
      
      Movie: director,actor)      //관리자 권한 
 
+/api/order/new: 주문 생성
 
 PUT
 
@@ -42,3 +46,5 @@ DELETE
 2026/7/2 로그인 기능,관리자 권한 체크,멤버 삭제,ApiResponse 형식 추가
 
 2026/7/5 상품 생성,상품생성시 중복체크,필수 입력항목 체크 추가
+
+2026/7/9 모든 상품 정보 조회,주문생성,모든주문조회 추가

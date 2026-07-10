@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jpabook.jpashop.api.ItemApiController;
 import jpabook.jpashop.api.ItemApiController.CreateItemRequest;
 import jpabook.jpashop.domain.Category;
+import jpabook.jpashop.domain.CategoryItem;
 import jpabook.jpashop.exception.NotEnoughStockException;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,8 +26,8 @@ public abstract class Item {
     private int price;
     private int stockQuantity;
 
-    @ManyToMany(mappedBy = "items")
-    private List<Category> categories = new ArrayList<Category>();
+    @OneToMany(mappedBy = "item",cascade = CascadeType.ALL)
+    private List<CategoryItem> categoryItems = new ArrayList<>();
 
 
     //==비즈니스 로직==//
@@ -40,6 +41,11 @@ public abstract class Item {
 
         }
         this.stockQuantity=restStock;
+    }
+
+    public void addCategoryItem(CategoryItem categoryItem){
+        this.categoryItems.add(categoryItem);
+        categoryItem.setItem(this);
     }
 
 

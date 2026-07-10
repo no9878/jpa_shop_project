@@ -20,4 +20,11 @@ public class Delivery {
 
     @Enumerated(EnumType.STRING)
     private DeliveryStatus status;
+
+    public static Delivery createDelivery(Address address, DeliveryStatus status){
+        Delivery delivery = new Delivery();
+        delivery.setAddress(address);
+        delivery.setStatus(status);
+        return delivery;
+    }
 }

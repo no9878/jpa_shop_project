@@ -59,17 +59,17 @@ public class CheckLogic {
      * 상품 중복체크
      */
     public void validateDuplicateItem(CreateItemRequest request){
-        if (request.getCategory()==1) {
+        if (request.getCategory()==2) {
             if (bookExistCheck(request) == 1) {
                 throw new CustomStatusException(HttpStatus.CONFLICT, "이미 존재하는 상품입니다.");
             }
         }
-        else if (request.getCategory()==2) {
+        else if (request.getCategory()==3) {
             if (albumExistCheck(request) == 1) {
                 throw new CustomStatusException(HttpStatus.CONFLICT, "이미 존재하는 상품입니다.");
             }
         }
-        else if (request.getCategory()==3) {
+        else if (request.getCategory()==4) {
             if (movieExistCheck(request) == 1) {
                 throw new CustomStatusException(HttpStatus.CONFLICT, "이미 존재하는 상품입니다.");
             }

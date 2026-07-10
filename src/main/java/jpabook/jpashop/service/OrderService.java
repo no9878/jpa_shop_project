@@ -1,11 +1,14 @@
 package jpabook.jpashop.service;
 
+import jpabook.jpashop.api.OrderApiController;
+import jpabook.jpashop.api.OrderApiController.NewOrderRequest.OrderItems;
 import jpabook.jpashop.domain.*;
 import jpabook.jpashop.domain.item.Item;
 import jpabook.jpashop.exception.CustomStatusException;
 import jpabook.jpashop.repository.ItemRepository;
 import jpabook.jpashop.repository.MemberRepository;
 import jpabook.jpashop.repository.OrderRepository;
+import jpabook.jpashop.repository.OrderRepositoryOld;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -19,53 +22,31 @@ import java.util.List;
 public class OrderService {
 
     private final MemberRepository memberRepository;
-    private final OrderRepository orderRepository;
     private final ItemRepository itemRepository;
+    private final OrderRepository orderRepository;
+    private final ItemService itemService;
 
-    /** 주문 */
     @Transactional
-    public Long order(Long memberId, Long itemId, int count){
-
-        //엔티티 조회
-        Member member = memberRepository.findById(memberId).orElseThrow(()->new CustomStatusException(HttpStatus.NOT_FOUND,"해당 멤버가 존재하지 않습니다."));
-        Item item = itemRepository.findById(itemId).orElseThrow(()->new CustomStatusException(HttpStatus.NOT_FOUND,"해당 상품이 존재하지 않습니다."));
-
-        //배송정보 생성
-        Delivery delivery = new Delivery();
-        delivery.setAddress(member.getAddress());
-        delivery.setStatus(DeliveryStatus.READY);
-
-        //주문상품 생성
-        OrderItem orderItem = OrderItem.createOrderItem(item, item.getPrice(),count);
-
-        //주문 생성
-        Order order = Order.createOrder(member,delivery,orderItem);
-
-        //주문 저장
-        orderRepository.save(order);
-        return order.getId();
+    public Order saveOrder(Order order) {
+        return orderRepository.save(order);
     }
-    /** 주문 취소 */
+
+    public List<Order> findAllOrders() {
+        return orderRepository.findAll();
+    }
+
     @Transactional
-    public void cancelOrder(Long orderId){
+    public Order createOrder(Long loginMemberId,Address address,List<OrderItems> orderItems) {
 
-        //주문 엔티티 조회
-        Order order = orderRepository.findOne(orderId);
+        Member member = memberRepository.findById(loginMemberId).orElseThrow(() -> new CustomStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 멤버입니다."));
+        Delivery delivery = Delivery.createDelivery(address, DeliveryStatus.READY);
 
-        //주문 취소
-        order.cancel();
-    }
 
-    /** 주문 검색 */
-    public List<Order> findOrders(OrderSearch orderSearch){
-        return orderRepository.findAll(orderSearch);
-    }
+    List<OrderItem> list = orderItems.stream()
+            .map(dto -> itemService.createOrderItem(dto))
+            .toList();
 
-    public Order findOrder(Long id){
-        return orderRepository.findOne(id);
-    }
-    public Order findOrderWithInfo(Long id){
-        return orderRepository.findOneWithInfo(id);
-    }
 
+    return Order.createOrder(member, delivery, list);
+}
 }

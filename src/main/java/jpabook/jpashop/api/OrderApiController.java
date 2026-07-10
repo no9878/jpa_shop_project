@@ -1,32 +1,148 @@
 package jpabook.jpashop.api;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jpabook.jpashop.Dto.ApiResponse;
 import jpabook.jpashop.domain.*;
-import jpabook.jpashop.repository.OrderRepository;
+import jpabook.jpashop.domain.item.Item;
+import jpabook.jpashop.filter.CheckLogic;
+import jpabook.jpashop.repository.OrderRepositoryOld;
 import jpabook.jpashop.repository.order.query.OrderFlatDto;
 import jpabook.jpashop.repository.order.query.OrderItemQueryDto;
 import jpabook.jpashop.repository.order.query.OrderQueryDto;
 import jpabook.jpashop.repository.order.query.OrderQueryRepository;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import jpabook.jpashop.service.ItemService;
+import jpabook.jpashop.service.OrderService;
+import lombok.*;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static java.util.stream.Collectors.*;
+import static jpabook.jpashop.filter.CheckLogic.adminCheck;
 
 @RestController
 @RequiredArgsConstructor
 public class OrderApiController {
 
-    private final OrderRepository orderRepository;
+    private final OrderRepositoryOld orderRepositoryold;
     private final OrderQueryRepository orderQueryRepository;
+    private final OrderService orderService;
+    private final ItemService itemService;
+
+    /**
+     * 주문 생성
+     * 파라미터: address,orderItems(itemName,categoryName(최하위 카테고리 입력),quantity)
+     */
+    @PostMapping("/api/order/new")
+    public ApiResponse<NewOrderResponse> newOrder(@SessionAttribute(name = "loginMember")Member loginMember,
+            @RequestBody @Valid NewOrderRequest request){
+
+        Order order = orderService.createOrder(loginMember.getId(), request.getAddress(),request.getOrderItems());
+
+        return new ApiResponse<>("success","주문 생성 성공",new NewOrderResponse(order.getId(),order.getMember().getName(),order.getTotalPrice()));
+
+    }
+
+    /**
+     * 모든 주문 조회
+     */
+    @GetMapping("/api/orders")
+    public ApiResponse<Result> Orders(@SessionAttribute(name = "loginMember",required = false)Member loginMember){
+        adminCheck(loginMember);
+
+        List<Order> allOrders = orderService.findAllOrders();
+        List<OrdersResponse> result = allOrders.stream()
+                .map(order -> new OrdersResponse(order))
+                .toList();
+        Result result1 = new Result(result);
+        return new ApiResponse<>("success","모든 주문 조회 성공",result1);
+
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class NewOrderRequest{
+
+        @NotNull
+        private Address address;
+
+        @NotEmpty
+        private List<OrderItems> orderItems;
+
+        @Getter
+        @NoArgsConstructor
+        @AllArgsConstructor
+        public static class OrderItems{
+            @NotBlank
+            private String itemName;
+            @NotBlank
+            private String categoryName;
+            @NotNull
+            @Min(value = 1)
+            private Integer quantity;
+        }
+        }
+
+
+    @Getter
+    public static class Result{
+    private List<OrdersResponse> result;
+
+    private Result(List<OrdersResponse> orders){
+        this.result = orders;
+    }
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class NewOrderResponse{
+        private Long orderId;
+        private String memberName;
+        private Integer totalPrice;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class OrdersResponse{
+        private Long orderId;
+        private String memberName;
+        private List<Dto> orderItems;
+        private DeliveryStatus deliveryStatus;
+        private LocalDateTime orderDate;
+        private OrderStatus orderStatus;
+        private Integer totalPrice;
+
+        private OrdersResponse(Order order){
+            this.orderId = order.getId();
+            this.memberName = order.getMember().getName();
+            this.orderItems = order.getOrderItems().stream()
+                    .map(orderItem->new Dto(orderItem.getItem().getName(),orderItem.getOrderPrice(),orderItem.getCount()))
+                    .toList();
+            this.deliveryStatus = order.getDelivery().getStatus();
+            this.orderDate = order.getOrderDate();
+            this.orderStatus = order.getStatus();
+            this.totalPrice = order.getTotalPrice();
+        }
+
+        @Getter
+        @AllArgsConstructor
+        private static class Dto{
+            private String name;
+            private Integer price;
+            private Integer quantity;
+        }
+    }
+
 
     @GetMapping("/api/v2/orders")
     public List<OrderDto> ordersV2(){
-        List<Order> orders = orderRepository.findAll(new OrderSearch());
+        List<Order> orders = orderRepositoryold.findAll(new OrderSearch());
         List<OrderDto> result = orders.stream()
                 .map(o -> new OrderDto(o))
                 .collect(toList());
@@ -35,7 +151,7 @@ public class OrderApiController {
 
     @GetMapping("/api/v3/orders")
     public List<OrderDto> ordersV3(){
-        List<Order> orders = orderRepository.findAllWithItem();
+        List<Order> orders = orderRepositoryold.findAllWithItem();
         List<OrderDto> result = orders.stream()
                 .map(o-> new OrderDto(o))
                 .collect(toList());
@@ -54,7 +170,7 @@ public class OrderApiController {
     defaultValue = "0")int offset,
                                         @RequestParam(value = "limit",
                                                 defaultValue = "100")int limit){
-        List<Order> orders = orderRepository.findAllWithMemberDelivery(offset,limit);
+        List<Order> orders = orderRepositoryold.findAllWithMemberDelivery(offset,limit);
         List<OrderDto> result = orders.stream()
                 .map(o->new OrderDto(o))
                 .collect(toList());
@@ -124,3 +240,4 @@ public class OrderApiController {
         }
     }
 }
+
