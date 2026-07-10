@@ -10,6 +10,8 @@ import jpabook.jpashop.repository.MemberRepository;
 import jpabook.jpashop.repository.OrderRepository;
 import jpabook.jpashop.repository.OrderRepositoryOld;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +36,15 @@ public class OrderService {
     public List<Order> findAllOrders() {
         return orderRepository.findAll();
     }
+
+    public Order findOrder(Long id){
+       return orderRepository.findById(id).orElseThrow(()->new CustomStatusException(HttpStatus.NOT_FOUND,"주문이 존재하지 않습니다."));
+    }
+
+    public Page<Order> findOrders(Pageable pageable, Long id){
+        return orderRepository.findOrders(pageable, id);
+    }
+
 
     @Transactional
     public Order createOrder(Long loginMemberId,Address address,List<OrderItems> orderItems) {

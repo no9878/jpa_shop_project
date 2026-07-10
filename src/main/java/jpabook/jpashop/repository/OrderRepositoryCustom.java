@@ -1,12 +1,10 @@
 package jpabook.jpashop.repository;
 
-import jpabook.jpashop.Dto.MembersDto;
 import jpabook.jpashop.domain.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
+public interface OrderRepositoryCustom {
+    Page<Order> findOrders(Pageable pageable, Long id);
 
-public interface MemberRepositoryCustom {
-    Page<MembersDto> members(Pageable pageable);
 }

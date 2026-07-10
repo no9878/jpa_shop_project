@@ -15,8 +15,11 @@ import jpabook.jpashop.repository.order.query.OrderItemQueryDto;
 import jpabook.jpashop.repository.order.query.OrderQueryDto;
 import jpabook.jpashop.repository.order.query.OrderQueryRepository;
 import jpabook.jpashop.service.ItemService;
+import jpabook.jpashop.service.MemberService;
 import jpabook.jpashop.service.OrderService;
 import lombok.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -32,7 +35,7 @@ public class OrderApiController {
     private final OrderRepositoryOld orderRepositoryold;
     private final OrderQueryRepository orderQueryRepository;
     private final OrderService orderService;
-    private final ItemService itemService;
+    private final MemberService memberService;
 
     /**
      * 주문 생성
@@ -63,6 +66,24 @@ public class OrderApiController {
         return new ApiResponse<>("success","모든 주문 조회 성공",result1);
 
     }
+
+    /**
+     * 특정멤버 주문 조회
+     */
+    @GetMapping("/api/member-orders")
+    public ApiResponse<Result> memberOrder(@SessionAttribute(name = "loginMember")Member loginMember,
+                                                   Pageable pageable){
+
+        Long id = loginMember.getId();
+        Page<Order> orders = orderService.findOrders(pageable, id);
+        List<OrdersResponse> list = orders.stream()
+                .map(dto -> new OrdersResponse(dto))
+                .toList();
+        Result result = new Result(list);
+        return new ApiResponse<>("success","주문 조회 성공.",result);
+    }
+
+
 
     @Getter
     @NoArgsConstructor

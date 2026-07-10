@@ -11,6 +11,8 @@ GET
 
 /api/orders: 모든 주문 정보 조회
 
+/api/member-orders: 특정멤버 주문 조회 
+
 POST
 
 /api/join: 멤버 등록 (파라미터: name,password)     //중복체크 기능 
@@ -31,6 +33,9 @@ POST
 
 /api/order/new: 주문 생성
 
+파라미터: address,orderItems(itemName,categoryName(최하위 카테고리 입력),quantity)
+
+
 PUT
 
 /api/update/{id}: 멤버 이름 수정 (파라미터: name)  //관리자 권한
@@ -48,3 +53,5 @@ DELETE
 2026/7/5 상품 생성,상품생성시 중복체크,필수 입력항목 체크 추가
 
 2026/7/9 모든 상품 정보 조회,주문생성,모든주문조회 추가
+
+2026/7/10 특정멤버 주문조회 추가

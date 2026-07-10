@@ -47,7 +47,12 @@ public class InitDb {
                 OrderItem orderItem2 = OrderItem.createOrderItem(item2, 20000, 2);
                 Order order = Order.createOrder(member, createDelivery(member), orderItem1, orderItem2);
                 orderService.saveOrder(order);
+                OrderItem orderItem3 = OrderItem.createOrderItem(item3, 30000, 3);
+                OrderItem orderItem4 = OrderItem.createOrderItem(item4, 40000, 4);
+                Order order2 = Order.createOrder(member, createDelivery(member), orderItem3, orderItem4);
+                orderService.saveOrder(order2);
                 em.persist(order);
+                em.persist(order2);
             }
 
             public void dbInit2 () {
@@ -134,6 +139,7 @@ public class InitDb {
             private Delivery createDelivery (Member member){
                 Delivery delivery = new Delivery();
                 delivery.setAddress(member.getAddress());
+                delivery.setStatus(DeliveryStatus.READY);
                 return delivery;
             }
 

@@ -2,6 +2,7 @@ package jpabook.jpashop.service;
 
 import jpabook.jpashop.Dto.MembersDto;
 import jpabook.jpashop.domain.Member;
+import jpabook.jpashop.domain.Order;
 import jpabook.jpashop.exception.CustomStatusException;
 import jpabook.jpashop.filter.CheckLogic;
 import jpabook.jpashop.repository.MemberRepository;
@@ -85,4 +86,6 @@ public class MemberService {
     public Page<MembersDto> findMemberDto(Pageable pageable){
         return memberRepository.members(pageable);
     }
+
+
 }
