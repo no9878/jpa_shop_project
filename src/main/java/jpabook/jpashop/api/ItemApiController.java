@@ -14,9 +14,9 @@ import jpabook.jpashop.exception.CustomStatusException;
 import jpabook.jpashop.filter.CheckLogic;
 import jpabook.jpashop.service.CategoryService;
 import jpabook.jpashop.service.ItemService;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -87,15 +87,70 @@ public class ItemApiController {
      * 모든 상품 정보 조회
      */
     @GetMapping("/api/items")
-    public ApiResponse<List<ItemDto>> itemStatus(@SessionAttribute(name = "loginMember",required = false)Member loginMember){
+    public ApiResponse<Result> itemStatus(@SessionAttribute(name = "loginMember",required = false)Member loginMember){
         adminCheck(loginMember);
         List<Item> items = itemService.findItems();
         List<ItemDto> result = new ArrayList<>();
         for (Item item : items) {
             result.add(new ItemDto(item));
         }
-        return new ApiResponse<>("success","상품 조회 성공",result);
+        Result result1 = new Result(result);
+        return new ApiResponse<>("success","상품 조회 성공",result1);
 
+    }
+
+
+    /**
+     * 상품 검색
+     * 파라미터:
+     *    String itemName,
+     *    String categoryName,
+     *    Integer maxPrice,
+     *    Integer minPrice
+     */
+    @GetMapping("/api/search")
+    public ApiResponse<Result> itemSearch(Pageable pageable,SearchFilter searchFilter){
+        Page<Item> items = itemService.searchItems(pageable, searchFilter);
+
+        List<ItemDto> result1 = items.stream()
+                .map(dto -> (new ItemDto(dto)))
+                .toList();
+
+
+        Result result = new Result(result1);
+
+        return new ApiResponse<>("success","상품 검색 성공",result);
+
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @ToString
+    public static class SearchFilter{
+        private String itemName;
+        private String categoryName;
+        private Integer maxPrice;
+        private Integer minPrice;
+    }
+
+
+
+    @Getter
+    public static class Result{
+        private List<ItemDto> result;
+
+        public Result(List<ItemDto> dto){
+            this.result = dto;
+        }
+
+    }
+
+
+    @Getter
+    @NoArgsConstructor
+    public static class SearchRequest{
+        private String name;
+        private String categoryName;
     }
 
     @Data

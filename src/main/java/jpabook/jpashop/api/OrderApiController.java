@@ -83,7 +83,15 @@ public class OrderApiController {
         return new ApiResponse<>("success","주문 조회 성공.",result);
     }
 
+    @Getter
+    public static class Result{
+        private List<OrdersResponse> result;
 
+        public Result(List<OrdersResponse> orders){
+            this.result = orders;
+        }
+
+    }
 
     @Getter
     @NoArgsConstructor
@@ -111,14 +119,7 @@ public class OrderApiController {
         }
 
 
-    @Getter
-    public static class Result{
-    private List<OrdersResponse> result;
 
-    private Result(List<OrdersResponse> orders){
-        this.result = orders;
-    }
-    }
 
     @Data
     @AllArgsConstructor

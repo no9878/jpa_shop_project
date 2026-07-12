@@ -1,17 +1,19 @@
 package jpabook.jpashop.service;
 
+import jpabook.jpashop.api.ItemApiController;
 import jpabook.jpashop.api.OrderApiController;
 import jpabook.jpashop.domain.OrderItem;
 import jpabook.jpashop.domain.item.Item;
 import jpabook.jpashop.exception.CustomStatusException;
 import jpabook.jpashop.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -50,5 +52,9 @@ public class ItemService {
     public OrderItem createOrderItem(OrderApiController.NewOrderRequest.OrderItems orderItems){
         Item item = findOrderItem(orderItems.getItemName(), orderItems.getCategoryName());
       return OrderItem.createOrderItem(item,item.getPrice(), orderItems.getQuantity());
+    }
+
+    public Page<Item> searchItems(Pageable pageable, ItemApiController.SearchFilter filter){
+        return itemRepository.searchItems(pageable,filter.getItemName(), filter.getCategoryName(), filter.getMaxPrice(), filter.getMinPrice());
     }
 }

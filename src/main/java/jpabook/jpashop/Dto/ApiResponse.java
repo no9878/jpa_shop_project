@@ -1,8 +1,12 @@
 package jpabook.jpashop.Dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jpabook.jpashop.api.OrderApiController;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -16,4 +20,5 @@ public class ApiResponse<T> {
         this.status = status;
         this.message = message;
     }
+
 }

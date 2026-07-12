@@ -13,15 +13,27 @@ GET
 
 /api/member-orders: 특정멤버 주문 조회 
 
+/api/search: 상품 검색
+
+    (파라미터:
+
+    String itemName 이름(포함),
+
+    String categoryName 카테고리이름(완전일치),
+
+    Integer maxPrice 최대가격,
+
+    Integer minPrice 최소가격)
+
 POST
 
 /api/join: 멤버 등록 (파라미터: name,password)     //중복체크 기능 
 
 /api/login: 멤버 로그인(파라미터: loginId,password)     
 
-/api/item/new: 상품 생성 //관리자 권한  
+/api/item/new: 상품 생성 
 
-     (공통 파라미터: category(1:Book,2:Album,3:Movie),name,price,stockQuantity
+    (공통 파라미터: category(1:Book,2:Album,3:Movie),name,price,stockQuantity
      
      항목별 파라미터:
      
@@ -55,3 +67,5 @@ DELETE
 2026/7/9 모든 상품 정보 조회,주문생성,모든주문조회 추가
 
 2026/7/10 특정멤버 주문조회 추가
+
+2026/7/13 상품 검색 추가
