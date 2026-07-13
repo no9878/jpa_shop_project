@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Component
 @RequiredArgsConstructor
 public class InitDb {
@@ -134,6 +136,7 @@ public class InitDb {
                 book.setStockQuantity(stockQuantity);
                 book.setAuthor(author);
                 book.setIsbn(isbn);
+                book.setLocalDateTime(LocalDateTime.now());
                 return book;
             }
             private Delivery createDelivery (Member member){

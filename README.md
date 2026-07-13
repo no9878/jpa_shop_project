@@ -23,7 +23,10 @@ GET
 
     Integer maxPrice 최대가격,
 
-    Integer minPrice 최소가격)
+    Integer minPrice 최소가격,
+    
+    String sortFilter 정렬조건(oldDate 등록 오래된 순,newDate 등록 최신순,highPrice 가격높은순,
+    lowPrice 가격낮은순)
 
 POST
 

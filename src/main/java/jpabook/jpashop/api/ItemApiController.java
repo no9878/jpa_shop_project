@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,7 +107,8 @@ public class ItemApiController {
      *    String itemName,
      *    String categoryName,
      *    Integer maxPrice,
-     *    Integer minPrice
+     *    Integer minPrice,
+     *    String sortFilter
      */
     @GetMapping("/api/search")
     public ApiResponse<Result> itemSearch(Pageable pageable,SearchFilter searchFilter){
@@ -131,6 +133,7 @@ public class ItemApiController {
         private String categoryName;
         private Integer maxPrice;
         private Integer minPrice;
+        private String sortFilter;
     }
 
 
@@ -161,6 +164,7 @@ public class ItemApiController {
         private Integer price;
         private Integer stockQuantity;
         private List<String> categoryItems;
+        private LocalDateTime createTime;
 
         public ItemDto(Item item){
             this.id = item.getId();
@@ -171,6 +175,7 @@ public class ItemApiController {
                     .filter(categoryItem ->categoryItem.getItem()!=null)
                     .map(categoryItem -> categoryItem.getCategory().getName())
                     .toList();
+            this.createTime = item.getLocalDateTime();
         }
     }
 

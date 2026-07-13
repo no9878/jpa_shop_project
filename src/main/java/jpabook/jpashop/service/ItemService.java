@@ -55,6 +55,6 @@ public class ItemService {
     }
 
     public Page<Item> searchItems(Pageable pageable, ItemApiController.SearchFilter filter){
-        return itemRepository.searchItems(pageable,filter.getItemName(), filter.getCategoryName(), filter.getMaxPrice(), filter.getMinPrice());
+        return itemRepository.searchItems(pageable,filter);
     }
 }

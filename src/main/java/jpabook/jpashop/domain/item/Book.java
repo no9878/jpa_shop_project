@@ -7,6 +7,8 @@ import jpabook.jpashop.api.ItemApiController.CreateItemRequest;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @DiscriminatorValue("B")
 @Getter @Setter
@@ -22,6 +24,7 @@ public class Book extends Item{
         book.setStockQuantity(request.getStockQuantity());
         book.setAuthor(request.getAuthor());
         book.setIsbn(request.getIsbn());
+        book.setLocalDateTime(LocalDateTime.now());
         return book;
     }
 }

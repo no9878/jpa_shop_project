@@ -7,6 +7,8 @@ import jpabook.jpashop.api.ItemApiController.CreateItemRequest;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @DiscriminatorValue("A")
 @Getter @Setter
@@ -22,6 +24,7 @@ public class Album extends Item{
         album.setStockQuantity(request.getStockQuantity());
         album.setArtist(request.getArtist());
         album.setEtc(request.getEtc());
+        album.setLocalDateTime(LocalDateTime.now());
         return album;
     }
 }

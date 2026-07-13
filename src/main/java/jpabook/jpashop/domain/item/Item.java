@@ -9,6 +9,7 @@ import jpabook.jpashop.exception.NotEnoughStockException;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +26,7 @@ public abstract class Item {
     private String name;
     private int price;
     private int stockQuantity;
+    private LocalDateTime localDateTime;
 
     @OneToMany(mappedBy = "item",cascade = CascadeType.ALL)
     private List<CategoryItem> categoryItems = new ArrayList<>();
