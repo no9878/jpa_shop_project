@@ -1,21 +1,17 @@
 package jpabook.jpashop.service;
 
-import jpabook.jpashop.api.OrderApiController;
 import jpabook.jpashop.api.OrderApiController.NewOrderRequest.OrderItems;
 import jpabook.jpashop.domain.*;
-import jpabook.jpashop.domain.item.Item;
 import jpabook.jpashop.exception.CustomStatusException;
 import jpabook.jpashop.lock.OptimisticItemLock;
 import jpabook.jpashop.repository.ItemRepository;
 import jpabook.jpashop.repository.MemberRepository;
 import jpabook.jpashop.repository.OrderRepository;
-import jpabook.jpashop.repository.OrderRepositoryOld;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;

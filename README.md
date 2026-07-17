@@ -8,6 +8,10 @@ http://localhost:8080
 
 에러: CustomStatusException 클래스 생성 -> GlobalExceptionHandler로 관리.
 
+초기 데이터 존재(InitDb 클래스)
+
+로그인세션 없을시 기본 ADMIN 계정 로그인세션 적용.
+
 GET
 
 /api/members: 멤버관련 정보 조회  //관리자 권한
@@ -35,7 +39,7 @@ GET
 
 POST
 
-/api/join: 멤버 등록 (파라미터: name,password)     //중복체크 기능 
+/api/join: 멤버 등록 (파라미터: name,password,city,street,zipcode)     //중복체크 기능 
 
 /api/login: 멤버 로그인(파라미터: loginId,password)     
 
