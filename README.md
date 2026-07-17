@@ -2,7 +2,7 @@
 
 http://localhost:8080
 
-응답형식: APIResponse 클래스로 통일.
+응답형식: ApiResponse 클래스로 통일.
 
 요청형식: 메서드별 상이.
 
