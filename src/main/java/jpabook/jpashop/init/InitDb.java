@@ -2,6 +2,8 @@ package jpabook.jpashop.init;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
+import jpabook.jpashop.api.OrderApiController;
+import jpabook.jpashop.api.OrderApiController.NewOrderRequest;
 import jpabook.jpashop.domain.*;
 import jpabook.jpashop.domain.item.Book;
 import jpabook.jpashop.domain.item.Item;
@@ -12,6 +14,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+
+import static jpabook.jpashop.api.OrderApiController.NewOrderRequest.*;
 
 @Component
 @RequiredArgsConstructor
@@ -45,16 +50,15 @@ public class InitDb {
                 member.setPassword("2222");
                 em.persist(member);
 
-                OrderItem orderItem1 = OrderItem.createOrderItem(item1, 10000, 1);
-                OrderItem orderItem2 = OrderItem.createOrderItem(item2, 20000, 2);
-                Order order = Order.createOrder(member, createDelivery(member), orderItem1, orderItem2);
-                orderService.saveOrder(order);
-                OrderItem orderItem3 = OrderItem.createOrderItem(item3, 30000, 3);
-                OrderItem orderItem4 = OrderItem.createOrderItem(item4, 40000, 4);
-                Order order2 = Order.createOrder(member, createDelivery(member), orderItem3, orderItem4);
-                orderService.saveOrder(order2);
-                em.persist(order);
-                em.persist(order2);
+////                ArrayList<OrderItems>  list= new ArrayList<>();
+////                OrderItems book1 = new OrderItems(item1.getName(), "BOOK", 1);
+////                OrderItems book2 = new OrderItems(item2.getName(), "BOOK", 2);
+////                list.add(book1);
+////                list.add(book2);
+////                NewOrderRequest request = new NewOrderRequest(member.getAddress(), list);
+////                Order order = orderService.createOrder(2L, request.getAddress(), request.getOrderItems());
+//                em.persist(order);
+
             }
 
             public void dbInit2 () {
@@ -62,11 +66,6 @@ public class InitDb {
                 member.setPassword("3333");
                 em.persist(member);
 
-                OrderItem orderItem1 = OrderItem.createOrderItem(item3, 30000, 3);
-                OrderItem orderItem2 = OrderItem.createOrderItem(item4, 40000, 4);
-                Order order = Order.createOrder(member,  createDelivery(member), orderItem1, orderItem2);
-                orderService.saveOrder(order);
-                em.persist(order);
             }
 
             public void createCategoryAndItem(){

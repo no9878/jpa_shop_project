@@ -6,6 +6,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 import jpabook.jpashop.api.ItemApiController;
 import jpabook.jpashop.domain.QCategory;
 import jpabook.jpashop.domain.QCategoryItem;
@@ -28,6 +29,8 @@ import static jpabook.jpashop.domain.item.QItem.item;
 
 public class ItemRepositoryImpl implements ItemRepositoryCustom{
 
+    private static final String LOCK_TIMEOUT="jakarta.persistence.lock.timeout";
+
 
    private final JPAQueryFactory queryFactory;
 
@@ -36,13 +39,15 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom{
    }
 
     @Override
-    public Item findOrderitem(String name, String categoryName) {
+    public Item findOrderitemWithLock(String name, String categoryName) {
         return queryFactory.select(item)
                 .from(item)
                 .join(item.categoryItems, categoryItem)
                 .join(categoryItem.category,category)
                 .where(item.name.eq(name),
                         category.name.eq(categoryName))
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                .setHint(LOCK_TIMEOUT,3000)
                 .fetchFirst();
     }
 

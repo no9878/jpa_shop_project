@@ -14,7 +14,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component
 @RequiredArgsConstructor
-@Profile("local")
+    @Profile("local")
 public class InitAdminLogin implements HandlerInterceptor {
 
     private final MemberService memberService;

@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -45,10 +46,10 @@ public class ItemService {
         return itemRepository.findById(itemId).orElseThrow(()-> new CustomStatusException(HttpStatus.NOT_FOUND,"해당 상품이 존재하지 않습니다."));
     }
     public Item findOrderItem(String name, String categoryName){
-        return itemRepository.findOrderitem(name,categoryName);
+        return itemRepository.findOrderitemWithLock(name,categoryName);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public OrderItem createOrderItem(OrderApiController.NewOrderRequest.OrderItems orderItems){
         Item item = findOrderItem(orderItems.getItemName(), orderItems.getCategoryName());
       return OrderItem.createOrderItem(item,item.getPrice(), orderItems.getQuantity());

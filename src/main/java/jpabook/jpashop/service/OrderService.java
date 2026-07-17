@@ -5,6 +5,7 @@ import jpabook.jpashop.api.OrderApiController.NewOrderRequest.OrderItems;
 import jpabook.jpashop.domain.*;
 import jpabook.jpashop.domain.item.Item;
 import jpabook.jpashop.exception.CustomStatusException;
+import jpabook.jpashop.lock.OptimisticItemLock;
 import jpabook.jpashop.repository.ItemRepository;
 import jpabook.jpashop.repository.MemberRepository;
 import jpabook.jpashop.repository.OrderRepository;
@@ -14,8 +15,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,6 +30,8 @@ public class OrderService {
     private final ItemRepository itemRepository;
     private final OrderRepository orderRepository;
     private final ItemService itemService;
+    private final OptimisticItemLock optimisticItemLock;
+
 
     @Transactional
     public Order saveOrder(Order order) {
@@ -54,10 +59,31 @@ public class OrderService {
 
 
     List<OrderItem> list = orderItems.stream()
+//            .map(dto -> optimisticItemLock.createOrderItemRetry(dto))
             .map(dto -> itemService.createOrderItem(dto))
             .toList();
 
 
-    return Order.createOrder(member, delivery, list);
+        Order order = Order.createOrder(member, delivery, list);
+        orderRepository.save(order);
+        return order;
 }
+    @Transactional
+    public Order createOrder(Long loginMemberId,Address address,OrderItem...orderItems) {
+
+        Member member = memberRepository.findById(loginMemberId).orElseThrow(() -> new CustomStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 멤버입니다."));
+        Delivery delivery = Delivery.createDelivery(address, DeliveryStatus.READY);
+
+
+        List<OrderItem> list = new ArrayList<>();
+        for (OrderItem orderItem : orderItems) {
+            list.add(orderItem);
+        }
+
+
+        Order order = Order.createOrder(member, delivery, list);
+        orderRepository.save(order);
+        return order;
+
+    }
 }

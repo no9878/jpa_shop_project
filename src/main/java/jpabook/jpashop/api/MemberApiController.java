@@ -112,7 +112,9 @@ public class MemberApiController {
     }
 
 
-    @Data
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class JoinMemberRequest {
         @NotBlank(message = "필수 입력 정보가 누락되었습니다.")
         private String name;
@@ -149,6 +151,7 @@ public class MemberApiController {
 
     @Getter
     @NoArgsConstructor
+    @AllArgsConstructor
     public static class LoginRequestDto {
         private String loginId;
         private String password;

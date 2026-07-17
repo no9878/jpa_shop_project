@@ -5,9 +5,11 @@ import jpabook.jpashop.api.ItemApiController;
 import jpabook.jpashop.api.ItemApiController.CreateItemRequest;
 import jpabook.jpashop.domain.Category;
 import jpabook.jpashop.domain.CategoryItem;
+import jpabook.jpashop.exception.CustomStatusException;
 import jpabook.jpashop.exception.NotEnoughStockException;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -27,6 +29,9 @@ public abstract class Item {
     private int price;
     private int stockQuantity;
     private LocalDateTime localDateTime;
+//
+//    @Version
+//    private Long version;
 
     @OneToMany(mappedBy = "item",cascade = CascadeType.ALL)
     private List<CategoryItem> categoryItems = new ArrayList<>();
@@ -39,7 +44,7 @@ public abstract class Item {
     public void removeStock(int quantity){
         int restStock = this.stockQuantity - quantity;
         if(restStock<0){
-            throw new NotEnoughStockException("need more stock");
+            throw new CustomStatusException(HttpStatus.NOT_FOUND,"need more stock");
 
         }
         this.stockQuantity=restStock;
