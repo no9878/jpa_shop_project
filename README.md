@@ -2,6 +2,11 @@
 
 http://localhost:8080
 
+응답형식: APIResponse 클래스로 통일.
+
+요청형식: 메서드별 상이.
+
+에러: CustomStatusException 클래스 생성 -> GlobalExceptionHandler로 관리.
 
 GET
 
