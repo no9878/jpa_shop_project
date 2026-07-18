@@ -87,13 +87,6 @@ public class MemberApiController {
     }
 
 
-    @Data
-    @AllArgsConstructor
-    public static class DeleteMemberResponse {
-        private Long id;
-        private String name;
-    }
-
     /**
      * 로그인
      * 파라미터: loginId,password
@@ -109,6 +102,13 @@ public class MemberApiController {
         HttpSession session = request.getSession();
         session.setAttribute("loginMember", loginMember);
         return new ApiResponse<>("success", "로그인 성공.", Map.of("message", "로그인 성공."));
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class DeleteMemberResponse {
+        private Long id;
+        private String name;
     }
 
 
