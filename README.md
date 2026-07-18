@@ -43,6 +43,12 @@ POST
 
 /api/login: 멤버 로그인(파라미터: loginId,password)     
 
+/api/category/new: 카테고리 생성  //관리자 권한
+
+    카테고리 생성
+    필수파라미터: name
+    선택파라미터: isChild,parentId
+
 /api/item/new: 상품 생성 
 
     (공통 파라미터: category(1:Book,2:Album,3:Movie),name,price,stockQuantity
@@ -74,7 +80,7 @@ DELETE
 
 2026/7/2 로그인 기능,관리자 권한 체크,멤버 삭제,ApiResponse 형식 추가
 
-2026/7/5 상품 생성,상품생성시 중복체크,필수 입력항목 체크 추가
+2026/7/5 카테고리 생성,상품 생성,상품생성시 중복체크,필수 입력항목 체크 추가
 
 2026/7/9 모든 상품 정보 조회,주문생성,모든주문조회 추가
 
