@@ -14,7 +14,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component
 @RequiredArgsConstructor
-    @Profile("local")
+@Profile("local")
 public class InitAdminLogin implements HandlerInterceptor {
 
     private final MemberService memberService;
@@ -27,7 +27,6 @@ public class InitAdminLogin implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-
         HttpSession session = request.getSession();
         if (session.getAttribute("loginMember")==null){
             Member admin = memberService.login(adminId, adminPw);
