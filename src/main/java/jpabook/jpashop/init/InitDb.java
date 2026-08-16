@@ -57,7 +57,7 @@ public class InitDb {
 ////                list.add(book2);
 ////                NewOrderRequest request = new NewOrderRequest(member.getAddress(), list);
 ////                Order order = orderService.createOrder(2L, request.getAddress(), request.getOrderItems());
-//                em.persist(order);
+//                 em.persist(order);
 
             }
 
