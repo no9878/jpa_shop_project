@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jpabook.jpashop.Dto.ApiResponse;
 import jpabook.jpashop.domain.*;
-import jpabook.jpashop.service.MemberService;
 import jpabook.jpashop.service.OrderService;
 import lombok.*;
 import org.springframework.data.domain.Page;
