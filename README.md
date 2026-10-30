@@ -98,5 +98,5 @@ DELETE
 - 기존: 비밀번호를 평문으로 저장하고 equals로 비교
 - 변경: 가입 시 BCryptPasswordEncoder로 암호화 해 저장, 로그인 시 matches()로 검증
 
-주문 트랜잭션 개선(재고 정합성)
+주문 트랜잭션 통합(REQUIRES_NEW 제거), 락 순서 고정, 동시성·롤백 테스트 추가
 - 참고: OptimisticItemLock은 현재 비활성(단일 트랜잭션 구조와 맞지 않음)
