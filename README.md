@@ -100,4 +100,4 @@ DELETE
 
 주문 트랜잭션 통합(REQUIRES_NEW 제거), 락 순서 고정, 동시성·롤백 테스트 추가
 - 참고: OptimisticItemLock은 현재 비활성(단일 트랜잭션 구조와 맞지 않음)
-- 상세:[주문 트랜잭션 개선 과정](docs/order-transaction.md)
+- 상세: [주문 트랜잭션 개선 과정](docs/order-transaction.md)
