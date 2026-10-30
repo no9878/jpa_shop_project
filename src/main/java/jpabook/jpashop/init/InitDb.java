@@ -10,6 +10,7 @@ import jpabook.jpashop.domain.item.Item;
 import jpabook.jpashop.service.CategoryService;
 import jpabook.jpashop.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,7 @@ public class InitDb {
 
     private final InitService initService;
 
+
     @PostConstruct
     public void init(){
         initService.createCategoryAndItem();
@@ -37,6 +39,7 @@ public class InitDb {
     @RequiredArgsConstructor
     static class InitService {
 
+        private final PasswordEncoder passwordEncoder;
         private final EntityManager em;
         private final CategoryService categoryService;
         private final OrderService orderService;
@@ -47,7 +50,7 @@ public class InitDb {
 
             public void dbInit1 () {
                 Member member = createMember("userA", "서울", "2", "2222", Role.GUEST);
-                member.setPassword("2222");
+                member.setPassword(passwordEncoder.encode("2222"));
                 em.persist(member);
 
 ////                ArrayList<OrderItems>  list= new ArrayList<>();
@@ -63,7 +66,7 @@ public class InitDb {
 
             public void dbInit2 () {
                 Member member = createMember("userB", "진주", "3", "3333", Role.GUEST);
-                member.setPassword("3333");
+                member.setPassword(passwordEncoder.encode("3333"));
                 em.persist(member);
 
             }
@@ -102,7 +105,7 @@ public class InitDb {
 
             public void adminInit () {
                 Member admin = createMember("ADMIN", "1", "1", "1", Role.ADMIN);
-                admin.setPassword("1234");
+                admin.setPassword(passwordEncoder.encode("1234"));
                 em.persist(admin);
             }
 

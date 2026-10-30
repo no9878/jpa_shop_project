@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component
@@ -30,6 +29,7 @@ public class InitAdminLogin implements HandlerInterceptor {
         HttpSession session = request.getSession();
         if (session.getAttribute("loginMember")==null){
             Member admin = memberService.login(adminId, adminPw);
+
             session.setAttribute("loginMember",admin);
 
         }

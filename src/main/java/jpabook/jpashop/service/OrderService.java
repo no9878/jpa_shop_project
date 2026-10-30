@@ -12,9 +12,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -55,6 +57,7 @@ public class OrderService {
 
 
     List<OrderItem> list = orderItems.stream()
+            .sorted(Comparator.comparing(OrderItems::getItemName))
 //            .map(dto -> optimisticItemLock.createOrderItemRetry(dto))
             .map(dto -> itemService.createOrderItem(dto))
             .toList();

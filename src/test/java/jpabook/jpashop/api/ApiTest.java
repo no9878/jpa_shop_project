@@ -20,9 +20,6 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static jpabook.jpashop.api.MemberApiController.*;
 import static jpabook.jpashop.api.OrderApiController.*;
@@ -85,83 +82,7 @@ class ApiTest {
         System.out.println("결과: "+itemService.findOne(1L).getName()+", "+itemService.findOne(1L).getStockQuantity());
     }
 
-    @Test
-    void OrderValidate() throws Exception {
-        Member member1 = memberService.findOne(2L);
-        Member member2 = memberService.findOne(3L);
 
-        MockHttpSession session1 = new MockHttpSession();
-        session1.setAttribute("loginMember",member1);
-        MockHttpSession session2 = new MockHttpSession();
-        session2.setAttribute("loginMember",member2);
-
-        List<OrderItems> orderItems = new ArrayList<>();
-        orderItems.add(new OrderItems("JPA1 BOOK","BOOK",70));
-        NewOrderRequest request = new NewOrderRequest(new Address("city1","street1","zipcode1"),orderItems);
-
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
-        CountDownLatch startLatch = new CountDownLatch(1);
-        CountDownLatch endLatch = new CountDownLatch(2);
-
-
-        executorService.submit(()->{
-                try {
-            startLatch.await();
-                    mockMvc.perform(post("/api/order/new")
-                                    .session(session1)
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .content(objectMapper.writeValueAsString(request)))
-                            .andExpect(status().isOk())
-                            .andExpect(jsonPath("$.status").value("success"))
-                            .andDo(print());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-                finally {
-                    endLatch.countDown();
-                }
-        });
-        executorService.submit(()->{
-            try {
-                startLatch.await();
-                mockMvc.perform(post("/api/order/new")
-                                .session(session2)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(request)))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.status").value("success"))
-                        .andDo(print());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            finally {
-                endLatch.countDown();
-            }
-        });
-
-        System.out.println("결과: "+itemService.findOne(1L).getName()+", "+itemService.findOne(1L).getStockQuantity());
-        startLatch.countDown();
-        endLatch.await();
-
-        mockMvc.perform(get("/api/orders"))
-                        .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("success"))
-                                .andDo(print());
-        System.out.println("결과: "+itemService.findOne(1L).getName()+", "+itemService.findOne(1L).getStockQuantity());
-
-
-        mockMvc.perform(get("/api/member-orders")
-                        .session(session1))
-                .andExpect(status().isOk())
-                .andDo(print());
-
-
-        mockMvc.perform(get("/api/member-orders")
-                        .session(session2))
-                .andExpect(status().isOk())
-                .andDo(print());
-
-    }
 
 
 

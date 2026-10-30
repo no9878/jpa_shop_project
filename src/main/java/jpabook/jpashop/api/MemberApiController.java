@@ -15,6 +15,7 @@ import lombok.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -26,7 +27,7 @@ import static jpabook.jpashop.filter.CheckLogic.adminCheck;
 public class MemberApiController {
 
     private final MemberService memberService;
-
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * 멤버등록
@@ -34,13 +35,7 @@ public class MemberApiController {
      */
     @PostMapping("/api/join")
     public ApiResponse<JoinMemberResponse> saveMemberV2(@RequestBody @Valid MemberApiController.JoinMemberRequest request) {
-        Member member = new Member();
-        member.setName(request.getName());
-        member.setPassword(request.getPassword());
-        Address address = new Address(request.getCity(), request.getStreet(), request.getZipcode());
-        member.setAddress(address);
-        member.setRole(Role.GUEST);
-        Long id = memberService.join(member);
+        Long id = memberService.join(request);
         Member newMember = memberService.findOne(id);
         return new ApiResponse<>("success", "멤버 등록 성공.", new JoinMemberResponse(id, (newMember.getName())));
     }

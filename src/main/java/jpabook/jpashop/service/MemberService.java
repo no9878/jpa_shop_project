@@ -1,8 +1,11 @@
 package jpabook.jpashop.service;
 
 import jpabook.jpashop.Dto.MembersDto;
+import jpabook.jpashop.api.MemberApiController;
+import jpabook.jpashop.domain.Address;
 import jpabook.jpashop.domain.Member;
 import jpabook.jpashop.domain.Order;
+import jpabook.jpashop.domain.Role;
 import jpabook.jpashop.exception.CustomStatusException;
 import jpabook.jpashop.filter.CheckLogic;
 import jpabook.jpashop.repository.MemberRepository;
@@ -10,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +26,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final CheckLogic checkLogic;
-
+    private final PasswordEncoder passwordEncoder;
 
     public Member login(String loginId,String password){
 
@@ -31,7 +35,7 @@ public class MemberService {
         if (findMember==null)
             return null;
 
-        if(findMember.getPassword().equals(password))
+        if(passwordEncoder.matches(password,findMember.getPassword()))
             return findMember;
 
         return null;
@@ -42,8 +46,13 @@ public class MemberService {
      * 회원 가입
      */
     @Transactional
-    public Long join(Member member){
-
+    public Long join(MemberApiController.JoinMemberRequest request){
+        Member member = new Member();
+        member.setName(request.getName());
+        member.setPassword(passwordEncoder.encode(request.getPassword()));
+        Address address = new Address(request.getCity(), request.getStreet(), request.getZipcode());
+        member.setAddress(address);
+        member.setRole(Role.GUEST);
         checkLogic.validateDuplicateMember(member); //중복 회원 검증
         memberRepository.save(member);
         return member.getId();

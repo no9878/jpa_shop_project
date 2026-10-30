@@ -49,9 +49,12 @@ public class ItemService {
         return itemRepository.findOrderitemWithLock(name,categoryName);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public OrderItem createOrderItem(OrderApiController.NewOrderRequest.OrderItems orderItems){
         Item item = findOrderItem(orderItems.getItemName(), orderItems.getCategoryName());
+        if (item == null){
+            throw new CustomStatusException(HttpStatus.NOT_FOUND,"해당 상품이 존재하지 않습니다.");
+        }
       return OrderItem.createOrderItem(item,item.getPrice(), orderItems.getQuantity());
     }
 
