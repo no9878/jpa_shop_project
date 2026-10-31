@@ -40,12 +40,19 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom{
 
     @Override
     public Item findOrderitemWithLock(String name, String categoryName) {
-        return queryFactory.select(item)
+        Long itemId =  queryFactory.select(item.id)
                 .from(item)
                 .join(item.categoryItems, categoryItem)
                 .join(categoryItem.category,category)
                 .where(item.name.eq(name),
                         category.name.eq(categoryName))
+                .fetchFirst();
+        if (itemId ==null){
+            return null;
+        }
+
+        return queryFactory.selectFrom(item)
+                .where(item.id.eq(itemId))
                 .setLockMode(LockModeType.PESSIMISTIC_WRITE)
                 .setHint(LOCK_TIMEOUT,3000)
                 .fetchFirst();

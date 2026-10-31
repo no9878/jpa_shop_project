@@ -2,6 +2,14 @@
 
 http://localhost:8080
 
+실행 전 MySQL 컨테이너 실행 필요: 
+
+```bash
+docker compose up -d
+```
+
+ddl-auto: create 설정으로 애플리케이션을 실행할 때마다 테이블과 데이터가 초기화됩니다.
+
 응답형식: ApiResponse 클래스로 통일.
 
 요청형식: 메서드별 상이.
@@ -18,9 +26,9 @@ GET
 
 /api/items: 모든 상품 정보 조회 //관리자 권한
 
-/api/orders: 모든 주문 정보 조회
+/api/orders: 모든 주문 정보 조회 //관리자 권한
 
-/api/member-orders: 특정멤버 주문 조회 
+/api/member-orders: 로그인한 멤버의 주문 조회 
 
 /api/search: 상품 검색
 
@@ -35,7 +43,7 @@ GET
     Integer minPrice 최소가격,
     
     String sortFilter 정렬조건(oldDate 등록 오래된 순,newDate 등록 최신순,highPrice 가격높은순,
-    lowPrice 가격낮은순)
+    lowPrice 가격낮은순))
 
 POST
 
@@ -51,7 +59,7 @@ POST
 
 /api/item/new: 상품 생성 
 
-    (공통 파라미터: category(1:Book,2:Album,3:Movie),name,price,stockQuantity
+    (공통 파라미터: category(2:Book,3:Album,4:Movie),categoryIds(1:ITEM,2:BOOK,3:ALBUM,4:MOVIE),name,price,stockQuantity
      
      항목별 파라미터:
      
@@ -91,7 +99,7 @@ DELETE
 2026/7/16 코드 수정으로인한 side effect의 확인을 용이하게 하기위해 MockMvc를 활용한 각 컨트롤러의 api testCode를 
 작성. 동시에 주문시 재고부족문제+그로인한 주문 동시생성 방지를 위해 Lock 적용(비관적/낙관적 Lock 검토 후 비관적 Lock 적용).
 
-2026/8/17 실행시 기본 local 프로필로 실행되도록 변경, 별도의 H2 데이터베이스 서버 실행 없이 Spring Boot 실행만으로 데이터베이스가 생성됩니다.
+2026/8/17 실행시 기본 local 프로필로 실행되도록 변경, 별도의 H2 데이터베이스 서버 실행 없이 Spring Boot 실행만으로 데이터베이스가 생성됩니다.(10/31 MySQL로 변경되어 현재는 해당 없음)
 남아있던 기존 실습의 화면 관련 코드 및 Thymeleaf 의존성 삭제.
 
 2026/10/30 비밀번호 BCrypt 해시 저장으로 변경
@@ -101,3 +109,9 @@ DELETE
 주문 트랜잭션 통합(REQUIRES_NEW 제거), 락 순서 고정, 동시성·롤백 테스트 추가
 - 참고: OptimisticItemLock은 현재 비활성(단일 트랜잭션 구조와 맞지 않음)
 - 상세: [주문 트랜잭션 개선 과정](docs/order-transaction.md)
+
+2026/10/31
+- H2 데이터 베이스를 MySQL로 변경적용.
+- 서로 다른 사람이 상품을 교차순서로 동시주문할 시 발생할수 있는 데드락 문제 해결. 
+- 상세: [데드락 해결과정](docs/dead-lock.md)
+- Item 엔티티의 name 컬럼에 인덱스 추가(주문 시 상품 이름 조회의 풀스캔 개선).

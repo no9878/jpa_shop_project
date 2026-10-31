@@ -55,7 +55,8 @@ public class ItemService {
         if (item == null){
             throw new CustomStatusException(HttpStatus.NOT_FOUND,"해당 상품이 존재하지 않습니다.");
         }
-      return OrderItem.createOrderItem(item,item.getPrice(), orderItems.getQuantity());
+
+        return OrderItem.createOrderItem(item,item.getPrice(), orderItems.getQuantity());
     }
 
     public Page<Item> searchItems(Pageable pageable, ItemApiController.SearchFilter filter){
