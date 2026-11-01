@@ -29,7 +29,7 @@ import static jpabook.jpashop.domain.item.QItem.item;
 
 public class ItemRepositoryImpl implements ItemRepositoryCustom{
 
-    private static final String LOCK_TIMEOUT="jakarta.persistence.lock.timeout";
+
 
 
    private final JPAQueryFactory queryFactory;
@@ -54,7 +54,6 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom{
         return queryFactory.selectFrom(item)
                 .where(item.id.eq(itemId))
                 .setLockMode(LockModeType.PESSIMISTIC_WRITE)
-                .setHint(LOCK_TIMEOUT,3000)
                 .fetchFirst();
     }
 
@@ -80,9 +79,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom{
                         categoryNameEq(filter),
                         itemPriceLoe(filter),
                         itemPriceGoe(filter));
-
         return PageableExecutionUtils.getPage(result,pageable,count::fetchOne);
-
     }
 
     private OrderSpecifier<?> sortCustom(SearchFilter filter){

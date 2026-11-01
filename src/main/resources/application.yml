@@ -6,6 +6,8 @@ spring:
     username: jpashop
     password: jpashop1234
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-init-sql: SET SESSION innodb_lock_wait_timeout=3
   jpa:
     hibernate:
       ddl-auto: create
