@@ -32,6 +32,8 @@ docker compose up -d
 
 ## 테스트
 
+MySQL 컨테이너가 실행 중이어야 합니다.
+
 ```bash
 ./gradlew test
 ```
@@ -44,9 +46,6 @@ docker compose up -d
 
 에러: CustomStatusException 클래스 생성 -> GlobalExceptionHandler로 관리.
 
-초기 데이터 존재(InitDb 클래스)
-
-local 프로필에서 로그인 세션이 없을 경우 기본 ADMIN 계정 로그인 세션 자동 적용.
 
 GET
 
