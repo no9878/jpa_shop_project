@@ -57,7 +57,9 @@ public class OrderService {
 
 
     List<OrderItem> list = orderItems.stream()
-            .sorted(Comparator.comparing(OrderItems::getItemName))
+            .sorted(Comparator.comparing(OrderItems::getItemName)
+                    .thenComparing(OrderItems::getCategoryName)
+            )
 //            .map(dto -> optimisticItemLock.createOrderItemRetry(dto))
             .map(dto -> itemService.createOrderItem(dto))
             .toList();
