@@ -1,14 +1,42 @@
-구현 기능
+# 회원, 상품, 주문 REST API 서버
+회원가입부터 상품 검색, 주문까지 처리하는 쇼핑몰 백엔드 API 서버입니다.
+동시 주문 환경에서 재고 정합성을 지키는 데 중점을 두고, 문제를 테스트로 재현하고 검증하며 개선했습니다.
 
-http://localhost:8080
+## 기술 스택
 
-실행 전 MySQL 컨테이너 실행 필요: 
+Java 17, Spring Boot, Spring Data JPA, Querydsl, MySQL, Docker Compose, JUnit5, MockMvc, BCrypt
+
+## 핵심 문제 해결
+
+- [주문 트랜잭션 개선: 재고 불일치와 커넥션 풀 고갈 해결](docs/order-transaction.md)
+- [데드락 해결: 원인 분석과 Lock 획득 순서 고정](docs/dead-lock.md)
+
+## 실행 방법
+
+MySQL 컨테이너를 먼저 실행합니다.
 
 ```bash
 docker compose up -d
 ```
 
-ddl-auto: create 설정으로 애플리케이션을 실행할 때마다 테이블과 데이터가 초기화됩니다.
+애플리케이션을 실행합니다.
+
+```bash
+./gradlew bootRun
+```
+
+- 주소: http://localhost:8080
+- `ddl-auto: create` 설정으로 실행할 때마다 테이블과 데이터가 초기화됩니다.
+- 초기 데이터는 `InitDb` 클래스에서 생성됩니다.
+- local 프로필에서는 로그인 세션이 없으면 기본 ADMIN 계정 세션이 자동 적용됩니다.
+
+## 테스트
+
+```bash
+./gradlew test
+```
+
+## API 명세
 
 응답형식: ApiResponse 클래스로 통일.
 
@@ -83,6 +111,7 @@ DELETE
 /api/delete/{id}: 멤버 삭제 //관리자 권한
 
 
+## 변경 이력
 
 2026/7/1 첫 업로드
 
@@ -96,8 +125,8 @@ DELETE
 
 2026/7/13 상품 검색 추가
 
-2026/7/16 코드 수정으로인한 side effect의 확인을 용이하게 하기위해 MockMvc를 활용한 각 컨트롤러의 api testCode를 
-작성. 동시에 주문시 재고부족문제+그로인한 주문 동시생성 방지를 위해 Lock 적용(비관적/낙관적 Lock 검토 후 비관적 Lock 적용).
+2026/7/16 코드 수정으로인한 side effect의 확인을 용이하게 하기위해 MockMvc를 활용한 회원가입, 로그인, 주문 API 테스트 코드 작성.
+동시에 주문시 재고부족문제+그로인한 주문 동시생성 방지를 위해 Lock 적용(비관적/낙관적 Lock 검토 후 비관적 Lock 적용).
 
 2026/8/17 실행시 기본 local 프로필로 실행되도록 변경, 별도의 H2 데이터베이스 서버 실행 없이 Spring Boot 실행만으로 데이터베이스가 생성됩니다.(10/31 MySQL로 변경되어 현재는 해당 없음)
 남아있던 기존 실습의 화면 관련 코드 및 Thymeleaf 의존성 삭제.
@@ -115,3 +144,7 @@ DELETE
 - 서로 다른 사람이 상품을 교차순서로 동시주문할 시 발생할수 있는 데드락 문제 해결. 
 - 상세: [데드락 해결과정](docs/dead-lock.md)
 - Item 엔티티의 name 컬럼에 인덱스 추가(주문 시 상품 이름 조회의 풀스캔 개선).
+
+2026/11/1
+- Lock 대기시간 설정을 'innodb_lock_wait_timeout'으로 변경.
+- 주문 상품 정렬 기준에 카테고리를 추가해 이름이 같은 상품의 Lock 순서도 고정.
