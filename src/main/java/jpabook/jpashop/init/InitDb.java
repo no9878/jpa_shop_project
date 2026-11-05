@@ -10,6 +10,7 @@ import jpabook.jpashop.domain.item.Item;
 import jpabook.jpashop.service.CategoryService;
 import jpabook.jpashop.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ import static jpabook.jpashop.api.OrderApiController.NewOrderRequest.*;
 
 @Component
 @RequiredArgsConstructor
+@Profile("local")
 public class InitDb {
 
     private final InitService initService;
