@@ -1,11 +1,9 @@
 package jpabook.jpashop.service;
 
-import jpabook.jpashop.api.OrderApiController;
 import jpabook.jpashop.api.OrderApiController.NewOrderRequest.OrderItems;
 import jpabook.jpashop.domain.Address;
 import jpabook.jpashop.domain.item.Item;
 import jpabook.jpashop.exception.CustomStatusException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,7 +37,7 @@ public class OrderServiceTest {
         assertThrows(CustomStatusException.class,
                 ()->orderService.createOrder(2L,address,request));
 
-        assertThat(itemService.findOne(1L).getStockQuantity()).isEqualTo(stockBefore);
+        assertThat(itemService.findOne(1L).getStockQuantity()).isEqualTo(stockBefore+1);
         assertThat(orderService.findAllOrders().size()).isEqualTo(orderBefore);
     }
 
