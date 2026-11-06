@@ -7,7 +7,6 @@ import jpabook.jpashop.exception.CustomStatusException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -37,7 +36,7 @@ public class OrderServiceTest {
         assertThrows(CustomStatusException.class,
                 ()->orderService.createOrder(2L,address,request));
 
-        assertThat(itemService.findOne(1L).getStockQuantity()).isEqualTo(stockBefore+1);
+        assertThat(itemService.findOne(1L).getStockQuantity()).isEqualTo(stockBefore);
         assertThat(orderService.findAllOrders().size()).isEqualTo(orderBefore);
     }
 
