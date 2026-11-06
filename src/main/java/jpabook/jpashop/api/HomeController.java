@@ -8,6 +8,6 @@ public class HomeController {
 
     @RequestMapping("/")
     public String home(){
-        return "JPA SHOP 프로젝트";
+        return "JPA SHOP 프로젝트 - 자동 배포 테스트";
     }
 }
