@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>JPA Shop API</title>
+    <style>
+        body { font-family: sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; line-height: 1.6; color: #222; }
+        h1 { margin-bottom: 4px; }
+        .links a { display: inline-block; margin: 8px 12px 8px 0; padding: 8px 14px; border: 1px solid #ccc; border-radius: 6px; text-decoration: none; color: #222; }
+        .links a:hover { background: #f3f3f3; }
+        code { background: #f3f3f3; padding: 1px 5px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+<h1>회원, 상품, 주문 REST API 서버</h1>
+<p>회원가입부터 상품 검색, 주문까지 처리하는 쇼핑몰 백엔드 API 서버입니다.<br>
+    동시 주문 환경에서 재고 정합성을 지키는 데 중점을 두었습니다.</p>
+
+<div class="links">
+    <a href="/swagger-ui.html">API 명세 · 테스트 (Swagger)</a>
+    <a href="https://github.com/no9878/jpa_shop_project">GitHub</a>
+</div>
+
+<h2>사용 방법</h2>
+<ol>
+    <li>Swagger에서 <code>POST /api/join</code>으로 회원가입</li>
+    <li><code>POST /api/login</code>으로 로그인 (같은 브라우저에서 로그인 상태가 유지됩니다)</li>
+    <li><code>GET /api/search</code>로 상품 검색</li>
+    <li><code>POST /api/order/new</code>로 주문, <code>GET /api/member-orders</code>로 내 주문 확인</li>
+</ol>
+<p>상품 등록, 회원 관리 같은 관리자 기능은 관리자 계정이 필요합니다.</p>
+
+<h2>기술 스택</h2>
+<p>Java 17, Spring Boot, Spring Data JPA, Querydsl, MySQL<br>
+    AWS EC2 · RDS, Nginx, Let's Encrypt, GitHub Actions</p>
+</body>
+</html>
