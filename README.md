@@ -13,6 +13,7 @@ AWS EC2, AWS RDS(MySQL), Nginx, Let's Encrypt, GitHub Actions
 
 - [주문 트랜잭션 개선: 재고 불일치와 커넥션 풀 고갈 해결](docs/order-transaction.md)
 - [데드락 해결: 원인 분석과 Lock 획득 순서 고정](docs/dead-lock.md)
+- [AWS 배포: 구조 설계와 트러블슈팅](docs/deployment.md)
 
 ## 배포 구조
 
