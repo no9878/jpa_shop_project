@@ -1,5 +1,6 @@
 package jpabook.jpashop.api;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -48,7 +49,7 @@ public class MemberApiController {
     @PutMapping("/api/update/{id}")
     public ApiResponse<UpdateMemberResponse> updateMemberV2(@PathVariable("id") Long id,
                                                             @RequestBody @Valid UpdateMemberRequest request,
-                                                            @SessionAttribute(name = "loginMember", required = false) Member loginMember) {
+                                                            @Parameter(hidden = true) @SessionAttribute(name = "loginMember", required = false) Member loginMember) {
 
         adminCheck(loginMember);
         memberService.update(id, request.getName());
@@ -61,7 +62,7 @@ public class MemberApiController {
      * 멤버관련 정보 조회(관리자)
      */
     @GetMapping("/api/members")
-    public ApiResponse<Page<MembersDto>> membersV2(@SessionAttribute(name = "loginMember", required = false) Member loginMember, Pageable pageable) {
+    public ApiResponse<Page<MembersDto>> membersV2(@Parameter(hidden = true) @SessionAttribute(name = "loginMember", required = false) Member loginMember, Pageable pageable) {
 
         adminCheck(loginMember);
         Page<MembersDto> memberDto = memberService.findMemberDto(pageable);
@@ -73,7 +74,7 @@ public class MemberApiController {
      * 멤버삭제
      */
     @DeleteMapping("/api/delete/{id}")
-    public ApiResponse<DeleteMemberResponse> deleteMember(@PathVariable("id") Long id, @SessionAttribute(name = "loginMember", required = false) Member loginMember) {
+    public ApiResponse<DeleteMemberResponse> deleteMember(@PathVariable("id") Long id, @Parameter(hidden = true) @SessionAttribute(name = "loginMember", required = false) Member loginMember) {
         adminCheck(loginMember);
         Member findMember = memberService.findOne(id);
         DeleteMemberResponse deleteMemberResponse = new DeleteMemberResponse(findMember.getId(), findMember.getName());

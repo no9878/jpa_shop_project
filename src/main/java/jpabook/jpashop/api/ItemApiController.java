@@ -1,5 +1,6 @@
 package jpabook.jpashop.api;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Min;
@@ -48,7 +49,7 @@ public class ItemApiController {
      */
     @PostMapping("/api/item/new")
     public ApiResponse<CreateItemResponse> setting(@RequestBody @Valid CreateItemRequest request,
-                                                   @SessionAttribute(name = "loginMember",required = false) Member loginMember){
+                                                   @Parameter(hidden = true) @SessionAttribute(name = "loginMember",required = false) Member loginMember){
 
         adminCheck(loginMember);
 
@@ -89,7 +90,7 @@ public class ItemApiController {
      * 모든 상품 정보 조회
      */
     @GetMapping("/api/items")
-    public ApiResponse<Result> itemStatus(@SessionAttribute(name = "loginMember",required = false)Member loginMember){
+    public ApiResponse<Result> itemStatus(@Parameter(hidden = true) @SessionAttribute(name = "loginMember",required = false)Member loginMember){
         adminCheck(loginMember);
         List<Item> items = itemService.findItems();
         List<ItemDto> result = new ArrayList<>();

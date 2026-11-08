@@ -1,5 +1,6 @@
 package jpabook.jpashop.api;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -29,7 +30,7 @@ public class OrderApiController {
      * 파라미터: address,orderItems(itemName,categoryName(최하위 카테고리 입력),quantity)
      */
     @PostMapping("/api/order/new")
-    public ApiResponse<NewOrderResponse> newOrder(@SessionAttribute(name = "loginMember")Member loginMember,
+    public ApiResponse<NewOrderResponse> newOrder(@Parameter(hidden = true) @SessionAttribute(name = "loginMember")Member loginMember,
             @RequestBody @Valid NewOrderRequest request){
 
         Order order = orderService.createOrder(loginMember.getId(), request.getAddress(),request.getOrderItems());
@@ -42,7 +43,7 @@ public class OrderApiController {
      * 모든 주문 조회
      */
     @GetMapping("/api/orders")
-    public ApiResponse<Result> Orders(@SessionAttribute(name = "loginMember",required = false)Member loginMember){
+    public ApiResponse<Result> Orders(@Parameter(hidden = true) @SessionAttribute(name = "loginMember",required = false)Member loginMember){
         adminCheck(loginMember);
 
         List<Order> allOrders = orderService.findAllOrders();
@@ -58,7 +59,7 @@ public class OrderApiController {
      * 특정멤버 주문 조회
      */
     @GetMapping("/api/member-orders")
-    public ApiResponse<Result> memberOrder(@SessionAttribute(name = "loginMember")Member loginMember,
+    public ApiResponse<Result> memberOrder(@Parameter(hidden = true) @SessionAttribute(name = "loginMember")Member loginMember,
                                                    Pageable pageable){
 
         Long id = loginMember.getId();

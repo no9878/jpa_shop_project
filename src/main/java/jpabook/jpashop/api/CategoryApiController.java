@@ -1,5 +1,6 @@
 package jpabook.jpashop.api;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jpabook.jpashop.Dto.ApiResponse;
@@ -29,7 +30,7 @@ public class CategoryApiController {
      * 선택파라미터: isChild,parentId
      */
     @PostMapping("/api/category/new")
-    public ApiResponse<NewCategoryResponse> createCategory(@SessionAttribute(name = "loginMember",required = false)Member loginMember,
+    public ApiResponse<NewCategoryResponse> createCategory(@Parameter(hidden = true) @SessionAttribute(name = "loginMember",required = false)Member loginMember,
                                                            @RequestBody @Valid NewCategoryRequest request){
         adminCheck(loginMember);
         Category category = new Category();
