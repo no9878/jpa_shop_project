@@ -15,6 +15,7 @@ import jpabook.jpashop.filter.CheckLogic;
 import jpabook.jpashop.service.CategoryService;
 import jpabook.jpashop.service.ItemService;
 import lombok.*;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -111,7 +112,7 @@ public class ItemApiController {
      *    String sortFilter
      */
     @GetMapping("/api/search")
-    public ApiResponse<Result> itemSearch(Pageable pageable,SearchFilter searchFilter){
+    public ApiResponse<Result> itemSearch(@ParameterObject Pageable pageable, @ParameterObject SearchFilter searchFilter){
         Page<Item> items = itemService.searchItems(pageable, searchFilter);
 
         List<ItemDto> result1 = items.stream()
