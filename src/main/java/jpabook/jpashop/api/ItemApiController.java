@@ -1,5 +1,6 @@
 package jpabook.jpashop.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
@@ -204,16 +205,19 @@ public class ItemApiController {
         private String director;
         private String actor;
 
+        @JsonIgnore
         @AssertTrue(message = "author,isbn은 필수 입력 항목입니다.")
         public boolean isBookFieldsValid(){
             if (category==null||category!=2) return true;
             return hasText(author)&&hasText(isbn);
         }
+        @JsonIgnore
         @AssertTrue(message = "artist,etc는 필수 입력 항목입니다.")
         public boolean isAlbumFieldsValid(){
             if (category==null||category!=3) return true;
             return hasText(artist)&&hasText(etc);
         }
+        @JsonIgnore
         @AssertTrue(message = "director,actor는 필수 입력 항목입니다.")
         public boolean isMovieFieldsValid(){
             if (category==null||category!=4) return true;

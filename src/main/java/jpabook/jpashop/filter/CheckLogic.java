@@ -37,11 +37,16 @@ public class CheckLogic {
     public static void adminCheck(@SessionAttribute(name = "loginMember",required = false) Member loginMember){
 
         if (loginMember==null){
-            throw new CustomStatusException(HttpStatus.FORBIDDEN,"로그인이 필요합니다.");
+            throw new CustomStatusException(HttpStatus.UNAUTHORIZED,"로그인이 필요합니다.");
         }
 
         if (loginMember.getRole()!= Role.ADMIN){
             throw new CustomStatusException(HttpStatus.FORBIDDEN,"관리자 권한이 필요합니다.");
+        }
+    }
+    public static void loginCheck(@SessionAttribute(name = "loginMember",required = false)Member loginMember){
+        if (loginMember==null){
+            throw  new CustomStatusException(HttpStatus.UNAUTHORIZED,"로그인이 필요합니다.");
         }
     }
     /**
