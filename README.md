@@ -3,10 +3,11 @@
 동시 주문 환경에서 재고 정합성을 지키는 데 중점을 두고, 문제를 테스트로 재현하고 검증하며 개선했습니다.
 
 - 배포 주소: https://hongjpa.duckdns.org
+- API 명세 · 테스트: https://hongjpa.duckdns.org/swagger-ui.html
 
 ## 기술 스택
 
-Java 17, Spring Boot, Spring Data JPA, Querydsl, MySQL, Docker Compose, JUnit5, MockMvc, BCrypt
+Java 17, Spring Boot, Spring Data JPA, Querydsl, MySQL, Docker Compose, JUnit5, MockMvc, BCrypt, Swagger(springdoc-openapi),
 AWS EC2, AWS RDS(MySQL), Nginx, Let's Encrypt, GitHub Actions
 
 ## 핵심 문제 해결
@@ -70,74 +71,12 @@ GitHub Actions에서는 MySQL 서비스 컨테이너를 띄워 push마다 같은
 
 ## API 명세
 
-응답형식: ApiResponse 클래스로 통일.
+Swagger에서 전체 API를 확인하고 직접 호출해 볼 수 있습니다.
+https://hongjpa.duckdns.org/swagger-ui.html
 
-요청형식: 메서드별 상이.
-
-에러: CustomStatusException 클래스 생성 -> GlobalExceptionHandler로 관리.
-
-
-GET
-
-/api/members: 멤버관련 정보 조회  //관리자 권한
-
-/api/items: 모든 상품 정보 조회 //관리자 권한
-
-/api/orders: 모든 주문 정보 조회 //관리자 권한
-
-/api/member-orders: 로그인한 멤버의 주문 조회 
-
-/api/search: 상품 검색
-
-    (파라미터:
-
-    String itemName 이름(포함),
-
-    String categoryName 카테고리이름(완전일치),
-
-    Integer maxPrice 최대가격,
-
-    Integer minPrice 최소가격,
-    
-    String sortFilter 정렬조건(oldDate 등록 오래된 순,newDate 등록 최신순,highPrice 가격높은순,
-    lowPrice 가격낮은순))
-
-POST
-
-/api/join: 멤버 등록 (파라미터: name,password,city,street,zipcode)     //중복체크 기능 
-
-/api/login: 멤버 로그인(파라미터: loginId,password)     
-
-/api/category/new: 카테고리 생성  //관리자 권한
-
-    카테고리 생성
-    필수파라미터: name
-    선택파라미터: isChild,parentId
-
-/api/item/new: 상품 생성 
-
-    (공통 파라미터: category(2:Book,3:Album,4:Movie),categoryIds(1:ITEM,2:BOOK,3:ALBUM,4:MOVIE),name,price,stockQuantity
-     
-     항목별 파라미터:
-     
-     Book: author,isbn
-     
-     Album: artist,etc
-     
-     Movie: director,actor)      //관리자 권한 
-
-/api/order/new: 주문 생성
-
-파라미터: address,orderItems(itemName,categoryName(최하위 카테고리 입력),quantity)
-
-
-PUT
-
-/api/update/{id}: 멤버 이름 수정 (파라미터: name)  //관리자 권한
-
-DELETE
-
-/api/delete/{id}: 멤버 삭제 //관리자 권한
+- 응답 형식: `ApiResponse` 클래스로 통일
+- 예외 처리: `CustomStatusException` → `GlobalExceptionHandler`에서 관리
+- 인증: 세션 방식. `/api/login`으로 로그인하면 같은 브라우저에서 로그인 상태가 유지됩니다
 
 
 ## 변경 이력
@@ -190,3 +129,5 @@ DELETE
 2026/11/07
 - DuckDNS 도메인, Nginx 리버스 프록시, Let's Encrypt HTTPS 적용 (인증서 자동 갱신)
 - 보안 그룹에서 8080 직접 접근 차단, Spring은 127.0.0.1에서만 요청을 받도록 설정
+- Swagger(springdoc-openapi) 적용, 홈 화면에 API 사용 안내 추가
+- README·docs 등 문서만 바뀐 경우 배포가 실행되지 않도록 워크플로 수정
