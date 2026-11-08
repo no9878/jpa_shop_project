@@ -131,3 +131,6 @@ https://hongjpa.duckdns.org/swagger-ui.html
 - 보안 그룹에서 8080 직접 접근 차단, Spring은 127.0.0.1에서만 요청을 받도록 설정
 - Swagger(springdoc-openapi) 적용, 홈 화면에 API 사용 안내 추가
 - README·docs 등 문서만 바뀐 경우 배포가 실행되지 않도록 워크플로 수정
+
+2026/11/08
+- 비로그인 응답 401 형식으로 통일
