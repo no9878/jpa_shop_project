@@ -10,6 +10,7 @@ import jpabook.jpashop.Dto.ApiResponse;
 import jpabook.jpashop.domain.*;
 import jpabook.jpashop.service.OrderService;
 import lombok.*;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static jpabook.jpashop.filter.CheckLogic.adminCheck;
+import static jpabook.jpashop.filter.CheckLogic.loginCheck;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,9 +32,10 @@ public class OrderApiController {
      * 파라미터: address,orderItems(itemName,categoryName(최하위 카테고리 입력),quantity)
      */
     @PostMapping("/api/order/new")
-    public ApiResponse<NewOrderResponse> newOrder(@Parameter(hidden = true) @SessionAttribute(name = "loginMember")Member loginMember,
+    public ApiResponse<NewOrderResponse> newOrder(@Parameter(hidden = true) @SessionAttribute(name = "loginMember",required = false)Member loginMember,
             @RequestBody @Valid NewOrderRequest request){
 
+        loginCheck(loginMember);
         Order order = orderService.createOrder(loginMember.getId(), request.getAddress(),request.getOrderItems());
 
         return new ApiResponse<>("success","주문 생성 성공",new NewOrderResponse(order.getId(),order.getMember().getName(),order.getTotalPrice()));
@@ -59,9 +62,9 @@ public class OrderApiController {
      * 특정멤버 주문 조회
      */
     @GetMapping("/api/member-orders")
-    public ApiResponse<Result> memberOrder(@Parameter(hidden = true) @SessionAttribute(name = "loginMember")Member loginMember,
-                                                   Pageable pageable){
-
+    public ApiResponse<Result> memberOrder(@Parameter(hidden = true) @SessionAttribute(name = "loginMember",required = false)Member loginMember,
+                                                   @ParameterObject Pageable pageable){
+        loginCheck(loginMember);
         Long id = loginMember.getId();
         Page<Order> orders = orderService.findOrders(pageable, id);
         List<OrdersResponse> list = orders.stream()
