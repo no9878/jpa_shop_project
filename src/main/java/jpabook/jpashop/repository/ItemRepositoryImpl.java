@@ -59,7 +59,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom{
 
     @Override
     public Page<Item> searchItems(Pageable pageable, SearchFilter filter) {
-        List<Item> result = queryFactory.select(item)
+        List<Item> result = queryFactory.select(item).distinct()
                 .from(item)
                 .join(item.categoryItems, categoryItem)
                 .join(categoryItem.category, category)
@@ -67,11 +67,11 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom{
                         categoryNameEq(filter),
                         itemPriceLoe(filter),
                         itemPriceGoe(filter))
-                .orderBy(sortCustom(filter))
+                .orderBy(sortCustom(filter),item.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
-        JPAQuery<Long> count = queryFactory.select(item.count())
+        JPAQuery<Long> count = queryFactory.select(item.countDistinct())
                 .from(item)
                 .join(item.categoryItems, categoryItem)
                 .join(categoryItem.category, category)
