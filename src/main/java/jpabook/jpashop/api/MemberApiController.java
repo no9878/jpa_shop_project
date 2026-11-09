@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jpabook.jpashop.Dto.ApiResponse;
 import jpabook.jpashop.Dto.MembersDto;
@@ -13,7 +15,9 @@ import jpabook.jpashop.domain.Role;
 import jpabook.jpashop.exception.CustomStatusException;
 import jpabook.jpashop.service.MemberService;
 import lombok.*;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -62,10 +66,11 @@ public class MemberApiController {
      * 멤버관련 정보 조회(관리자)
      */
     @GetMapping("/api/members")
-    public ApiResponse<Page<MembersDto>> membersV2(@Parameter(hidden = true) @SessionAttribute(name = "loginMember", required = false) Member loginMember, Pageable pageable) {
+    public ApiResponse<Page<MembersDto>> membersV2(@Parameter(hidden = true) @SessionAttribute(name = "loginMember", required = false) Member loginMember, @RequestParam(defaultValue = "0") @Min(value = 0,message = "page는 0 이상이어야 합니다.")int page,
+                                                   @RequestParam(defaultValue = "20") @Min(value = 1, message = "size는 1 이상이어야 합니다.") @Max(value = 100,message = "size는 100 이하여야 합니다.")int size) {
 
         adminCheck(loginMember);
-        Page<MembersDto> memberDto = memberService.findMemberDto(pageable);
+        Page<MembersDto> memberDto = memberService.findMemberDto(PageRequest.of(page,size));
         return new ApiResponse<>("success", "멤버 조회 성공.", memberDto);
 
     }

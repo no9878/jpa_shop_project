@@ -25,6 +25,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
     public Page<Order> findOrders(Pageable pageable,Long id) {
         List<Order> result = queryFactory.selectFrom(order)
                 .where(order.member.id.eq(id))
+                .orderBy(order.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();

@@ -33,6 +33,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom{
                         member.role
                 ))
                 .from(member)
+                .orderBy(member.id.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();

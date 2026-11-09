@@ -2,16 +2,14 @@ package jpabook.jpashop.api;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import jpabook.jpashop.Dto.ApiResponse;
 import jpabook.jpashop.domain.*;
 import jpabook.jpashop.service.OrderService;
 import lombok.*;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
@@ -62,11 +60,11 @@ public class OrderApiController {
      * 특정멤버 주문 조회
      */
     @GetMapping("/api/member-orders")
-    public ApiResponse<Result> memberOrder(@Parameter(hidden = true) @SessionAttribute(name = "loginMember",required = false)Member loginMember,
-                                                   @ParameterObject Pageable pageable){
+    public ApiResponse<Result> memberOrder(@Parameter(hidden = true) @SessionAttribute(name = "loginMember",required = false)Member loginMember,@RequestParam(defaultValue = "0") @Min(value = 0,message = "page는 0 이상이어야 합니다.")int page,
+                                           @RequestParam(defaultValue = "20") @Min(value = 1, message = "size는 1 이상이어야 합니다.") @Max(value = 100,message = "size는 100 이하여야 합니다.")int size){
         loginCheck(loginMember);
         Long id = loginMember.getId();
-        Page<Order> orders = orderService.findOrders(pageable, id);
+        Page<Order> orders = orderService.findOrders(PageRequest.of(page,size), id);
         List<OrdersResponse> list = orders.stream()
                 .map(dto -> new OrdersResponse(dto))
                 .toList();

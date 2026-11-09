@@ -3,10 +3,7 @@ package jpabook.jpashop.api;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import jpabook.jpashop.Dto.ApiResponse;
 import jpabook.jpashop.domain.Category;
 import jpabook.jpashop.domain.CategoryItem;
@@ -18,7 +15,9 @@ import jpabook.jpashop.service.CategoryService;
 import jpabook.jpashop.service.ItemService;
 import lombok.*;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -114,8 +113,11 @@ public class ItemApiController {
      *    String sortFilter
      */
     @GetMapping("/api/search")
-    public ApiResponse<Result> itemSearch(@ParameterObject Pageable pageable, @ParameterObject SearchFilter searchFilter){
-        Page<Item> items = itemService.searchItems(pageable, searchFilter);
+    public ApiResponse<Result> itemSearch(@RequestParam(defaultValue = "0") @Min(value = 0,message = "page는 0 이상이어야 합니다.")int page,
+                                          @RequestParam(defaultValue = "20") @Min(value = 1, message = "size는 1 이상이어야 합니다.") @Max(value = 100,message = "size는 100 이하여야 합니다.")int size, @ParameterObject SearchFilter searchFilter){
+
+
+        Page<Item> items = itemService.searchItems(PageRequest.of(page,size), searchFilter);
 
         List<ItemDto> result1 = items.stream()
                 .map(dto -> (new ItemDto(dto)))
