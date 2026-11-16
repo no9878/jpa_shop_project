@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import jpabook.jpashop.Dto.ApiResponse;
+import jpabook.jpashop.Dto.PageResponse;
 import jpabook.jpashop.domain.Category;
 import jpabook.jpashop.domain.CategoryItem;
 import jpabook.jpashop.domain.Member;
@@ -113,20 +114,13 @@ public class ItemApiController {
      *    String sortFilter
      */
     @GetMapping("/api/search")
-    public ApiResponse<Result> itemSearch(@RequestParam(defaultValue = "0") @Min(value = 0,message = "page는 0 이상이어야 합니다.")int page,
-                                          @RequestParam(defaultValue = "20") @Min(value = 1, message = "size는 1 이상이어야 합니다.") @Max(value = 100,message = "size는 100 이하여야 합니다.")int size, @ParameterObject SearchFilter searchFilter){
+    public ApiResponse<PageResponse<ItemDto>> itemSearch(@RequestParam(defaultValue = "0") @Min(value = 0,message = "page는 0 이상이어야 합니다.")int page,
+                                                @RequestParam(defaultValue = "20") @Min(value = 1, message = "size는 1 이상이어야 합니다.") @Max(value = 100,message = "size는 100 이하여야 합니다.")int size, @ParameterObject SearchFilter searchFilter){
 
 
         Page<Item> items = itemService.searchItems(PageRequest.of(page,size), searchFilter);
 
-        List<ItemDto> result1 = items.stream()
-                .map(dto -> (new ItemDto(dto)))
-                .toList();
-
-
-        Result result = new Result(result1);
-
-        return new ApiResponse<>("success","상품 검색 성공",result);
+        return new ApiResponse<>("success","상품 검색 성공",new PageResponse<>(items.map(ItemDto::new)));
 
     }
 
