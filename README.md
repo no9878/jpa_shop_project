@@ -15,6 +15,7 @@ AWS EC2, AWS RDS(MySQL), Nginx, Let's Encrypt, GitHub Actions
 - [주문 트랜잭션 개선: 재고 불일치와 커넥션 풀 고갈 해결](docs/order-transaction.md)
 - [데드락 해결: 원인 분석과 Lock 획득 순서 고정](docs/dead-lock.md)
 - [AWS 배포: 구조 설계와 트러블슈팅](docs/deployment.md)
+- [Lock 전략 비교와 잠금 범위 확인](docs/lock-comparison.md)
 
 ## 배포 구조
 
@@ -77,7 +78,7 @@ https://hongjpa.duckdns.org/swagger-ui.html
 - 응답 형식: `ApiResponse` 클래스로 통일
 - 예외 처리: `CustomStatusException` → `GlobalExceptionHandler`에서 관리
 - 인증: 세션 방식. `/api/login`으로 로그인하면 같은 브라우저에서 로그인 상태가 유지됩니다
-
+- 로그아웃: `/api/logout`으로 세션을 무효화합니다
 
 ## 변경 이력
 
@@ -104,7 +105,7 @@ https://hongjpa.duckdns.org/swagger-ui.html
 - 변경: 가입 시 BCryptPasswordEncoder로 암호화 해 저장, 로그인 시 matches()로 검증
 
 주문 트랜잭션 통합(REQUIRES_NEW 제거), 락 순서 고정, 동시성·롤백 테스트 추가
-- 참고: OptimisticItemLock은 현재 비활성(단일 트랜잭션 구조와 맞지 않음)
+- 참고: OptimisticItemLock은 현재 비활성(단일 트랜잭션 구조와 맞지 않음) → 11/16 삭제, 주문 단위 재시도(OrderFacade)로 대체
 - 상세: [주문 트랜잭션 개선 과정](docs/order-transaction.md)
 
 2026/10/31
@@ -115,7 +116,7 @@ https://hongjpa.duckdns.org/swagger-ui.html
 
 2026/11/1
 - Lock 대기시간 설정을 'innodb_lock_wait_timeout'으로 변경.
-- 주문 상품 정렬 기준에 카테고리를 추가해 이름이 같은 상품의 Lock 순서도 고정.
+- 주문 상품 정렬 기준에 카테고리를 추가해 이름이 같은 상품의 Lock 순서도 고정. → 11/16 상품 ID 순 정렬로 변경
 
 2026/11/05
 - prod 프로필 분리: DB 접속 정보 환경변수화, ddl-auto 환경별 설정
@@ -138,3 +139,12 @@ https://hongjpa.duckdns.org/swagger-ui.html
 2026/11/09
 - 상품검색 페이징 중복 수정 및 테스트 추가
 - 페이징을 page, size만 파라미터로 받게 변경 및 검증추가, 페이징 시 기본정렬추가
+
+2026/11/16
+- 주문 Lock 순서를 상품 ID(PK) 기준으로 변경: 상품 이름은 유일하지 않아, ID를 Lock 없이 먼저 조회한 뒤 ID 순으로 잠그도록 수정
+- 주문 재시도 Facade 추가: 데드락·Lock 대기 초과 시 트랜잭션 바깥에서 주문 전체를 재시도 (최대 10회, 50~100ms 무작위 대기)
+- 상품 단위 재시도(OptimisticItemLock) 삭제: 버전 충돌은 커밋 시점에 나서 상품 단위 재시도가 동작하지 않음
+- Lock 전략 비교: 재고 20 · 동시 주문 20에서 Lock 없음 / 낙관적 Lock / 비관적 Lock / 조건부 UPDATE 측정 → 규칙을 엔티티에 둘 수 있는 비관적 Lock 유지 (비교용 코드는 남겨 둠)
+- 데드락 테스트는 재시도 없이 직접 호출해, Lock 순서 정렬이 빠지면 실패하도록 변경
+- 상품 검색 응답에 페이지 정보 추가 (PageResponse)
+- 로그아웃 API 추가, 로그인 응답 형식 정리
