@@ -3,7 +3,6 @@ package jpabook.jpashop.service;
 import jpabook.jpashop.api.OrderApiController.NewOrderRequest.OrderItems;
 import jpabook.jpashop.domain.*;
 import jpabook.jpashop.exception.CustomStatusException;
-import jpabook.jpashop.lock.OptimisticItemLock;
 import jpabook.jpashop.repository.ItemRepository;
 import jpabook.jpashop.repository.MemberRepository;
 import jpabook.jpashop.repository.OrderRepository;
@@ -12,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -28,7 +26,6 @@ public class OrderService {
     private final ItemRepository itemRepository;
     private final OrderRepository orderRepository;
     private final ItemService itemService;
-    private final OptimisticItemLock optimisticItemLock;
 
 
     @Transactional
@@ -48,6 +45,7 @@ public class OrderService {
         return orderRepository.findOrders(pageable, id);
     }
 
+    private record ItemIdAndQuantity(Long itemId, int quantity){}
 
     @Transactional
     public Order createOrder(Long loginMemberId,Address address,List<OrderItems> orderItems) {
@@ -57,15 +55,17 @@ public class OrderService {
 
 
     List<OrderItem> list = orderItems.stream()
-            .sorted(Comparator.comparing(OrderItems::getItemName)
-                    .thenComparing(OrderItems::getCategoryName)
-            )
-//            .map(dto -> optimisticItemLock.createOrderItemRetry(dto))
-            .map(dto -> itemService.createOrderItem(dto))
+            .map(dto -> new ItemIdAndQuantity(
+                    itemService.findItemId(dto.getItemName(), dto.getCategoryName()),
+                    dto.getQuantity()))
+            .sorted(Comparator.comparing(ItemIdAndQuantity::itemId))
+            .map(x -> itemService.createOrderItem(x.itemId(),x.quantity()))
+//            .map(dto -> itemService.createOrderItemQuery(dto))
             .toList();
 
 
         Order order = Order.createOrder(member, delivery, list);
+//        itemRepository.flush();
         orderRepository.save(order);
         return order;
 }

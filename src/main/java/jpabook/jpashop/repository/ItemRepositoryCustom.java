@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Lock;
 
 public interface ItemRepositoryCustom {
     Item findOrderitemWithLock(String name, String categoryName);
-
+    Long findItemId(String name, String categoryName);
     Page<Item> searchItems(Pageable pageable, ItemApiController.SearchFilter filter);
+    Item findByIdWithLock(Long id);
 }

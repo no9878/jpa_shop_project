@@ -60,6 +60,35 @@ public class ItemService {
         return OrderItem.createOrderItem(item,item.getPrice(), orderItems.getQuantity());
     }
 
+    public Long findItemId(String name, String categoryName) {
+        Long itemId = itemRepository.findItemId(name, categoryName);
+        if (itemId == null) {
+            throw new CustomStatusException(HttpStatus.NOT_FOUND, "해당 상품이 존재하지 않습니다.");
+        }
+        return itemId;
+    }
+
+    @Transactional
+    public OrderItem createOrderItem(Long itemId, int quantity) {
+        Item item = itemRepository.findByIdWithLock(itemId);
+        if (item == null) {
+            throw new CustomStatusException(HttpStatus.NOT_FOUND, "해당 상품이 존재하지 않습니다.");
+        }
+        return OrderItem.createOrderItem(item, item.getPrice(), quantity);
+    }
+    @Transactional
+    public OrderItem createOrderItemQuery(OrderApiController.NewOrderRequest.OrderItems orderItems){
+        Long itemId = itemRepository.findItemId(orderItems.getItemName(), orderItems.getCategoryName());
+        if (itemId == null){
+            throw new CustomStatusException(HttpStatus.NOT_FOUND,"해당 상품이 존재하지 않습니다.");
+        }
+        if (itemRepository.decreaseStock(itemId,orderItems.getQuantity())==0){
+            throw new CustomStatusException(HttpStatus.NOT_FOUND,"need more stock");
+        }
+        Item item = findOne(itemId);
+        return OrderItem.of(item,item.getPrice(),orderItems.getQuantity());
+    }
+
     public Page<Item> searchItems(Pageable pageable, ItemApiController.SearchFilter filter){
         return itemRepository.searchItems(pageable,filter);
     }

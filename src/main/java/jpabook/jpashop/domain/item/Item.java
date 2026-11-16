@@ -26,7 +26,7 @@ public abstract class Item {
     private int price;
     private int stockQuantity;
     private LocalDateTime localDateTime;
-//
+
 //    @Version
 //    private Long version;
 

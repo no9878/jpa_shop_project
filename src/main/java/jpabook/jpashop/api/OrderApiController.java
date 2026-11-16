@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import jpabook.jpashop.Dto.ApiResponse;
 import jpabook.jpashop.domain.*;
+import jpabook.jpashop.lock.OrderFacade;
 import jpabook.jpashop.service.OrderService;
 import lombok.*;
 import org.springdoc.core.annotations.ParameterObject;
@@ -24,6 +25,7 @@ import static jpabook.jpashop.filter.CheckLogic.loginCheck;
 public class OrderApiController {
 
     private final OrderService orderService;
+    private final OrderFacade orderFacade;
 
     /**
      * 주문 생성
@@ -34,8 +36,8 @@ public class OrderApiController {
             @RequestBody @Valid NewOrderRequest request){
 
         loginCheck(loginMember);
-        Order order = orderService.createOrder(loginMember.getId(), request.getAddress(),request.getOrderItems());
-
+//        Order order = orderService.createOrder(loginMember.getId(), request.getAddress(),request.getOrderItems());
+        Order order = orderFacade.createOrderWithRetry(loginMember.getId(),request.getAddress(),request.getOrderItems());
         return new ApiResponse<>("success","주문 생성 성공",new NewOrderResponse(order.getId(),order.getMember().getName(),order.getTotalPrice()));
 
     }

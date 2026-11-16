@@ -4,9 +4,12 @@ import jpabook.jpashop.api.OrderApiController.NewOrderRequest.OrderItems;
 import jpabook.jpashop.domain.Address;
 import jpabook.jpashop.domain.item.Item;
 import jpabook.jpashop.exception.CustomStatusException;
+import jpabook.jpashop.lock.OrderFacade;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -22,6 +25,7 @@ public class OrderServiceTest {
 
     @Autowired OrderService orderService;
     @Autowired ItemService itemService;
+    @Autowired OrderFacade orderFacade;
 
     private final Address address = new Address("서울","1","1111");
 
@@ -34,8 +38,8 @@ public class OrderServiceTest {
                 new OrderItems("JPA2 BOOK","BOOK",100000));
 
         assertThrows(CustomStatusException.class,
-                ()->orderService.createOrder(2L,address,request));
-
+//                ()->orderService.createOrder(2L,address,request));
+                ()->orderFacade.createOrderWithRetry(2L,address,request));
         assertThat(itemService.findOne(1L).getStockQuantity()).isEqualTo(stockBefore);
         assertThat(orderService.findAllOrders().size()).isEqualTo(orderBefore);
     }
@@ -55,16 +59,23 @@ public class OrderServiceTest {
         AtomicInteger success = new AtomicInteger();
         AtomicInteger stockFail = new AtomicInteger();
         AtomicInteger otherFail = new AtomicInteger();
+        AtomicInteger conflictFail = new AtomicInteger();
+        int retryBefore = orderFacade.getRetryCount();
         for (int i = 0; i < threads; i++) {
             pool.submit(()->{
                 try {
                     ready.countDown();
                     start.await();
-                    orderService.createOrder(2L,address,
+//                    orderService.createOrder(2L,address,
+//                            List.of(new OrderItems("SPRING1 BOOK","BOOK",1)));
+                    orderFacade.createOrderWithRetry(2L,address,
                             List.of(new OrderItems("SPRING1 BOOK","BOOK",1)));
                     success.incrementAndGet();
                 }catch (CustomStatusException e){
-                    stockFail.incrementAndGet();
+                    if(e.getStatus() == HttpStatus.CONFLICT)
+                        conflictFail.incrementAndGet();
+                    else
+                        stockFail.incrementAndGet();
                 }catch (Exception e){
                     otherFail.incrementAndGet();
                     e.printStackTrace();
@@ -75,10 +86,18 @@ public class OrderServiceTest {
             });
         }
         ready.await();
+        long t0 = System.nanoTime();
         start.countDown();
         assertThat(done.await(30, TimeUnit.SECONDS)).isTrue();
+        long elapsedMs = (System.nanoTime() - t0) / 1000000;
         pool.shutdown();
 
+        System.out.println("elapsed=" + elapsedMs + "ms, success=" + success.get()
+                + ", stockFail=" + stockFail.get()
+                + ", conflictFail= "+conflictFail.get()
+                + ", otherFail=" + otherFail.get()
+                + ", finalStock=" + itemService.findOne(3L).getStockQuantity());
+        System.out.println("retries = " + (orderFacade.getRetryCount() - retryBefore));
         assertThat(success.get()).isEqualTo(stock);
         assertThat(stockFail.get()).isEqualTo(threads-stock);
         assertThat(otherFail.get()).isZero();
@@ -111,6 +130,9 @@ public class OrderServiceTest {
                     orderService.createOrder(2L,address,
                             List.of(new OrderItems("SPRING1 BOOK","BOOK",1),
                                     new OrderItems("SPRING2 BOOK","BOOK",1)));
+//                orderFacade.createOrderWithRetry(2L,address,
+//                        List.of(new OrderItems("SPRING1 BOOK","BOOK",1),
+//                                new OrderItems("SPRING2 BOOK","BOOK",1)));
                     success.incrementAndGet();
             }catch (Exception e) {
                 e.printStackTrace();
@@ -126,6 +148,9 @@ public class OrderServiceTest {
                 orderService.createOrder(3L,address,
                         List.of(new OrderItems("SPRING2 BOOK","BOOK",1),
                                 new OrderItems("SPRING1 BOOK","BOOK",1)));
+//                orderFacade.createOrderWithRetry(3L,address,
+//                        List.of(new OrderItems("SPRING2 BOOK","BOOK",1),
+//                                new OrderItems("SPRING1 BOOK","BOOK",1)));
                 success.incrementAndGet();
             }catch (Exception e) {
                 e.printStackTrace();
