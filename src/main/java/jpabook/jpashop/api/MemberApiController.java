@@ -93,7 +93,7 @@ public class MemberApiController {
      * 파라미터: loginId,password
      */
     @PostMapping("/api/login")
-    public ApiResponse<Map<String, String>> login(@RequestBody @Valid LoginRequestDto loginRequestDto, HttpServletRequest request) {
+    public ApiResponse<Void> login(@RequestBody @Valid LoginRequestDto loginRequestDto, HttpServletRequest request) {
         Member loginMember = memberService.login(loginRequestDto.getLoginId(), loginRequestDto.getPassword());
 
         if (loginMember == (null)) {
@@ -102,7 +102,18 @@ public class MemberApiController {
 
         HttpSession session = request.getSession();
         session.setAttribute("loginMember", loginMember);
-        return new ApiResponse<>("success", "로그인 성공.", Map.of("message", "로그인 성공."));
+        return new ApiResponse<>("success", "로그인 성공.");
+    }
+
+    /**
+     * 로그아웃
+     */
+    @PostMapping("/api/logout")
+    public ApiResponse<Void> logout(HttpServletRequest request){
+    HttpSession session = request.getSession(false);
+    if (session !=null)
+        session.invalidate();
+    return new ApiResponse<>("success","로그아웃 되었습니다.");
     }
 
     @Data

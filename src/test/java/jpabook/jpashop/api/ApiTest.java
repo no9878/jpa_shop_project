@@ -6,6 +6,7 @@ import jpabook.jpashop.domain.Member;
 import jpabook.jpashop.service.ItemService;
 import jpabook.jpashop.service.MemberService;
 import jpabook.jpashop.service.OrderService;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +70,12 @@ class ApiTest {
         LoginRequestDto requestDto = new LoginRequestDto("userA","2222");
 
         checkWithRequestBody("POST","/api/login",requestDto);
+    }
+
+    @Test
+    void logout() throws Exception {
+        checkWithRequestBody("POST","/api/logout",null);
+        Assertions.assertThat(session.isInvalid()).isTrue();
     }
 
     @Test
