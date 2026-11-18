@@ -21,14 +21,14 @@ AWS EC2, AWS RDS(MySQL), Nginx, Let's Encrypt, GitHub Actions
 
 ```mermaid
 flowchart LR
+    Dev["개발자"] -->|git push| GA["GitHub Actions<br/>빌드 · 테스트 · 이미지 생성"]
+    GA -->|테스트 통과 시 push| GHCR[("GHCR<br/>이미지 저장소")]
+    GHCR -->|pull · 컨테이너 교체| App
     User["사용자"] -->|HTTPS 443| Nginx
     subgraph EC2["EC2"]
         Nginx["Nginx<br/>리버스 프록시 · TLS"] -->|127.0.0.1:8080| App["Spring Boot<br/>(Docker 컨테이너)"]
     end
     App -->|3306 · VPC 내부| RDS[("RDS MySQL")]
-    Dev["개발자"] -->|git push| GA["GitHub Actions<br/>빌드 · 테스트 · 이미지 생성"]
-    GA -->|이미지 push| GHCR[("GHCR")]
-    GHCR -->|테스트 통과 시 pull · 컨테이너 교체| App
 ```
 
 - **HTTPS**: Nginx에서 TLS를 처리하고 Let's Encrypt 인증서를 자동 갱신, HTTP 요청은 HTTPS로 리다이렉트
