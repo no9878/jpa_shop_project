@@ -26,13 +26,13 @@ flowchart LR
         Nginx["Nginx<br/>리버스 프록시 · TLS"] -->|127.0.0.1:8080| App["Spring Boot<br/>(Docker 컨테이너)"]
     end
     App -->|3306 · VPC 내부| RDS[("RDS MySQL")]
-     Dev["개발자"] -->|git push| GA["GitHub Actions<br/>빌드 · 테스트 · 이미지 생성"]
+    Dev["개발자"] -->|git push| GA["GitHub Actions<br/>빌드 · 테스트 · 이미지 생성"]
     GA -->|이미지 push| GHCR[("GHCR")]
     GHCR -->|테스트 통과 시 pull · 컨테이너 교체| App
 ```
 
 - **HTTPS**: Nginx에서 TLS를 처리하고 Let's Encrypt 인증서를 자동 갱신, HTTP 요청은 HTTPS로 리다이렉트
-- **외부 공개 포트 최소화**: 80/443만 공개하고, Spring은 127.0.0.1에서만 요청을 받아 외부에서 직접 접근 불가
+- **외부 공개 포트 최소화**: 80/443만 공개하고, 앱 포트는 EC2의 127.0.0.1에만 연결해 외부에서 직접 접근 불가
 - **DB 네트워크 격리**: RDS는 퍼블릭 액세스를 끄고, EC2 보안 그룹에서 오는 요청만 허용
 - **환경별 설정 분리**: local / prod 프로필 분리, 운영 DB 정보는 서버 환경변수로 주입
 - **컨테이너 배포**: 테스트를 통과한 코드만 Docker 이미지로 만들어 GHCR에 올리고, EC2는 커밋 번호 태그의 이미지를 받아 컨테이너를 교체
@@ -150,3 +150,7 @@ https://hongjpa.duckdns.org/swagger-ui.html
 - 데드락 테스트는 재시도 없이 직접 호출해, Lock 순서 정렬이 빠지면 실패하도록 변경
 - 상품 검색 응답에 페이지 정보 추가 (PageResponse)
 - 로그아웃 API 추가, 로그인 응답 형식 정리
+
+2026/11/18
+- 운영 배포를 jar + systemd에서 Docker 이미지 + 컨테이너 방식으로 전환 (GHCR에 커밋 번호 태그로 이미지 저장)
+- 테스트 실패 시 이미지 생성·배포가 실행되지 않는 것 확인
