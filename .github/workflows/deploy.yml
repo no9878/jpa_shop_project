@@ -19,7 +19,6 @@ concurrency:
 env:
   AWS_REGION: ap-southeast-2
   SG_ID: sg-0b5680a239e671136
-  JAR_NAME: jpashop-0.0.1-SNAPSHOT.jar
   IMAGE: ghcr.io/no9878/jpa_shop_project
 
 
@@ -92,9 +91,15 @@ jobs:
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
-          scp -i ~/.ssh/deploy_key build/libs/$JAR_NAME ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/$JAR_NAME.new
-          ssh -i ~/.ssh/deploy_key ec2-user@${{ secrets.EC2_HOST }} "mv /home/ec2-user/$JAR_NAME.new /home/ec2-user/$JAR_NAME && sudo systemctl restart jpashop"
-
+          ssh -i ~/.ssh/deploy_key ec2-user@${{ secrets.EC2_HOST }} "
+            docker pull $IMAGE:${{ github.sha }} &&
+            (docker rm -f jpashop || true) &&
+            docker run -d --name jpashop --restart unless-stopped \
+              --env-file /etc/jpashop.env \
+              -e SPRING_PROFILES_ACTIVE=prod -e SERVER_ADDRESS=0.0.0.0 -e JAVA_TOOL_OPTIONS=-Xmx512m \
+              -p 127.0.0.1:8080:8080 $IMAGE:${{ github.sha }} &&
+            docker image prune -af
+          "
       - name: Health check
         run: |
           ssh -i ~/.ssh/deploy_key ec2-user@${{ secrets.EC2_HOST }} "for i in \$(seq 1 30); do curl -sf http://localhost:8080/ > /dev/null && exit 0; sleep 2; done; exit 1"
