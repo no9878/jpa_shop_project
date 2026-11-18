@@ -40,7 +40,7 @@ public class OrderServiceTest {
         assertThrows(CustomStatusException.class,
 //                ()->orderService.createOrder(2L,address,request));
                 ()->orderFacade.createOrderWithRetry(2L,address,request));
-        assertThat(itemService.findOne(1L).getStockQuantity()).isEqualTo(2);
+        assertThat(itemService.findOne(1L).getStockQuantity()).isEqualTo(stockBefore);
         assertThat(orderService.findAllOrders().size()).isEqualTo(orderBefore);
     }
 
