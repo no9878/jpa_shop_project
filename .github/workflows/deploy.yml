@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: read
+  packages: write
 
 concurrency:
   group: deploy
@@ -19,6 +20,8 @@ env:
   AWS_REGION: ap-southeast-2
   SG_ID: sg-0b5680a239e671136
   JAR_NAME: jpashop-0.0.1-SNAPSHOT.jar
+  IMAGE: ghcr.io/no9878/jpa_shop_project
+
 
 jobs:
   deploy:
@@ -56,6 +59,18 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew clean build 
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        run: |
+          docker build -t $IMAGE:${{ github.sha }} -t $IMAGE:latest .
+          docker push --all-tags $IMAGE
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
