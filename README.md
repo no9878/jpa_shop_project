@@ -7,7 +7,7 @@
 
 ## 기술 스택
 
-Java 17, Spring Boot, Spring Data JPA, Querydsl, MySQL, Docker Compose, JUnit5, MockMvc, BCrypt, Swagger(springdoc-openapi),
+Java 17, Spring Boot, Spring Data JPA, Querydsl, MySQL, Docker, Docker Compose, JUnit5, MockMvc, BCrypt, Swagger(springdoc-openapi),
 AWS EC2, AWS RDS(MySQL), Nginx, Let's Encrypt, GitHub Actions
 
 ## 핵심 문제 해결
@@ -23,21 +23,23 @@ AWS EC2, AWS RDS(MySQL), Nginx, Let's Encrypt, GitHub Actions
 flowchart LR
     User["사용자"] -->|HTTPS 443| Nginx
     subgraph EC2["EC2"]
-        Nginx["Nginx<br/>리버스 프록시 · TLS"] -->|127.0.0.1:8080| App["Spring Boot"]
+        Nginx["Nginx<br/>리버스 프록시 · TLS"] -->|127.0.0.1:8080| App["Spring Boot<br/>(Docker 컨테이너)"]
     end
     App -->|3306 · VPC 내부| RDS[("RDS MySQL")]
-    Dev["개발자"] -->|git push| GA["GitHub Actions<br/>빌드 · 테스트"]
-    GA -->|테스트 통과 시 배포| App
+     Dev["개발자"] -->|git push| GA["GitHub Actions<br/>빌드 · 테스트 · 이미지 생성"]
+    GA -->|이미지 push| GHCR[("GHCR")]
+    GHCR -->|테스트 통과 시 pull · 컨테이너 교체| App
 ```
 
 - **HTTPS**: Nginx에서 TLS를 처리하고 Let's Encrypt 인증서를 자동 갱신, HTTP 요청은 HTTPS로 리다이렉트
 - **외부 공개 포트 최소화**: 80/443만 공개하고, Spring은 127.0.0.1에서만 요청을 받아 외부에서 직접 접근 불가
 - **DB 네트워크 격리**: RDS는 퍼블릭 액세스를 끄고, EC2 보안 그룹에서 오는 요청만 허용
 - **환경별 설정 분리**: local / prod 프로필 분리, 운영 DB 정보는 서버 환경변수로 주입
+- **컨테이너 배포**: 테스트를 통과한 코드만 Docker 이미지로 만들어 GHCR에 올리고, EC2는 커밋 번호 태그의 이미지를 받아 컨테이너를 교체
 - **CI/CD**: push마다 MySQL 컨테이너에서 테스트를 실행하고, 실패하면 배포 중단
 - **배포 시 SSH 최소 개방**: 러너 IP만 배포 중에 임시로 허용하고 종료 후 회수
 - **최소 권한**: 배포용 IAM 사용자는 해당 보안 그룹의 규칙 추가·삭제만 가능
-- **한계**: 단일 인스턴스이고, 배포 시 `systemctl restart`로 수십 초간 서비스가 중단됨
+- **한계**: 단일 인스턴스이고, 배포 시 컨테이너를 교체하는 동안 수십 초간 서비스가 중단됨
 
 ## 로컬 실행 방법
 
